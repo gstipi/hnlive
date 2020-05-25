@@ -12,9 +12,9 @@ defmodule HNLive.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: HNLive.PubSub},
       # Start the Endpoint (http/https)
-      HNLiveWeb.Endpoint
-      # Start a worker by calling: HNLive.Worker.start_link(arg)
-      # {HNLive.Worker, arg}
+      HNLiveWeb.Endpoint,
+      # Hackney pool used for httpoison requests
+      :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
