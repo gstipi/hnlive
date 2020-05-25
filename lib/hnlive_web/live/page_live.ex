@@ -15,31 +15,46 @@ defmodule HNLiveWeb.PageLive do
   @impl true
   def render(assigns) do
     ~L"""
-    <section class="section">
-    <h1 class="title is-hidden-mobile">Hacker News Live</h1>
+    <center>
     <%= if length(@top_newest) > 0 do %>
-    <table class="table is-striped is-fullwidth is-narrow">
-      <thead>
-        <tr>
-          <th>Score</th>
-          <th>Title</th>
-          <th>Comments</th>
-        </tr>
-      </thead>
+    <table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
       <tbody>
+      <tr>
+        <td bgcolor="#ff6600">
+          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
+            <tr>
+              <td style="width:18px;padding-right:4px"></td>
+              <td style="line-height:12pt; height:10px;">
+               <span class="pagetop"><b class="hnname">Hacker News Live</b></span>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    <tr id="pagespace" title="" style="height:10px">
+    </tr>
+    <tr>
+    <td>
+    <table border="0" cellpadding="0" cellspacing="0" class="itemlist">
+
         <%= for {id, score, title, comments, url, updated} <- @top_newest do %>
-          <tr class="<%= class_update_animation(updated) %>" >
+          <tr class="athing <%= class_update_animation(updated) %>" >
+          <td align="right" valign="top" class="title"><span class="rank">1.</span></td>
             <td><%= score %></td>
             <td><a href="<%= url %>"> <%= title %></a> </td>
             <td><a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %></a></td>
           </tr>
+          <tr class="spacer" style="height:5px"></tr>
         <% end %>
       </tbody>
     </table>
     <% else %>
       <p> No data available yet. </p>
     <% end %>
-    </section>
+    </td>
+    </tr>
+    </table>
+    </center>
     """
   end
 
