@@ -1,39 +1,57 @@
 defmodule HNLiveWeb.PageLive do
   use HNLiveWeb, :live_view
+  alias HNLive.Watcher
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    if connected?(socket) do
+      HNLive.Watcher.subscribe()
+    end
+
+    socket = assign(socket, :top_newest, Watcher.get_top_newest_stories())
+    {:ok, socket, temporary_assigns: [top_newest: []]}
   end
 
   @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def render(assigns) do
+    ~L"""
+    <section class="section">
+    <h1 class="title is-hidden-mobile">Hacker News Live</h1>
+    <%= if length(@top_newest) > 0 do %>
+    <table class="table is-striped is-fullwidth is-narrow">
+      <thead>
+        <tr>
+          <th>Score</th>
+          <th>Title</th>
+          <th>Comments</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for {id, score, title, comments, url, updated} <- @top_newest do %>
+          <tr class="<%= class_update_animation(updated) %>" >
+            <td><%= score %></td>
+            <td><a href="<%= url %>"> <%= title %></a> </td>
+            <td><a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %></a></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <% else %>
+      <p> No data available yet. </p>
+    <% end %>
+    </section>
+    """
   end
 
   @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
-
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+  def handle_info({:update_top_newest, top_newest}, socket) do
+    {:noreply, assign(socket, :top_newest, top_newest)}
   end
 
-  defp search(query) do
-    if not HNLiveWeb.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
+  defp class_update_animation(show) do
+    case show do
+      true -> "update-animation"
+      false -> ""
     end
-
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
   end
 end

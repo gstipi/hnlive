@@ -2,6 +2,21 @@
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
+.update-animation {
+  animation-duration: 3s;
+  animation-name: highlight;
+}
+
+@keyframes highlight {
+  from {
+    background-color: greenyellow;
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
 /* LiveView specific classes for your customizations */
 .invalid-feedback {
   color: #a94442;
