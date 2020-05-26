@@ -16,64 +16,45 @@ defmodule HNLiveWeb.PageLive do
   def render(assigns) do
     ~L"""
     <center>
-    <table id="hnmain" border="0" cellpadding="0" cellspacing="0" width="85%" bgcolor="#f6f6ef">
-      <tbody>
-      <tr>
-        <td bgcolor="#ff6600">
-          <table border="0" cellpadding="0" cellspacing="0" width="100%" style="padding:2px">
-            <tr>
-              <td style="width:18px;padding-right:4px"></td>
-              <td style="line-height:12pt; height:10px;">
-               <span class="pagetop"><b class="hnname">HN Top 10 Newest Posts Live</b></span>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <tr id="pagespace" title="" style="height:10px"></tr>
-      <tr>
-      <td>
-    <%= if length(@top_newest) > 0 do %>
-    <table border="0" cellpadding="0" cellspacing="0" class="itemlist">
-      <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
-      <tr class="athing <%= class_update_animation(updated) %>" >
-        <td align="right" valign="top" class="title"><span class="rank"><%= idx + 1 %>.</span></td>
-        <td class="votelinks" valign="top">
-        <div class="votearrow" title="upvote"></div>
-        </td>
-        <td class="title">
-          <a class="storylink" href="<%= url %>"><%= title %></a>
-        </td>
-      </tr>
-      <tr class="<%= class_update_animation(updated) %>">
-        <td colspan="2"></td>
-        <td class="subtext">
-          <span class="score"><%= score %> points</span>
-          |
-          <a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %> comments</a>
-        </td>
-      </tr>
-      <tr class="spacer" style="height:5px"></tr>
-      <% end %>
-      </tbody>
-    </table>
-    <% else %>
-    <p> No data available yet. </p>
-    <% end %>
-    </td>
-    </tr>
-    <tr>
-    <td bgcolor="#ff6600">
-      <table border="0" cellpadding="0" cellspacing="0" width="100%">
-        <tr>
-          <td style="line-height:2px; height:2px;">
-          </td>
-        </tr>
+      <table id="hnmain">
+        <tbody>
+          <tr>
+            <td class="orange-bg header"><span class="pagetop">HN Top 10 Newest Posts Live</span></td>
+          </tr>
+          <tr class="spacer"></tr>
+          <tr>
+            <td>
+              <%= if length(@top_newest) > 0 do %>
+              <table class="itemlist">
+                <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
+                  <tr class="athing <%= class_update_animation(updated) %>">
+                    <td class="title align-right-top"><span class="rank"><%= idx + 1 %>.</span></td>
+                    <td class="title">
+                      <a class="storylink" href="<%= url %>"><%= title %></a>
+                    </td>
+                  </tr>
+                  <tr class="<%= class_update_animation(updated) %>">
+                    <td></td>
+                    <td class="subtext">
+                      <span class="score"><%= score %> points</span>
+                      |
+                      <a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %> comments</a>
+                    </td>
+                  </tr>
+                  <tr class="spacer"></tr>
+                <% end %>
+                </tbody>
+              </table>
+              <% else %>
+              <p> No data available yet. </p>
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <td class="bottom-ruler orange-bg"></td>
+          </tr>
+        </tbody>
       </table>
-    </td>
-    </tr>
-    </tbody>
-    </table>
     </center>
     """
   end

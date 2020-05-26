@@ -1,65 +1,36 @@
 /* This file is for your main application css. */
 @import "../node_modules/nprogress/nprogress.css";
 
-.update-animation {
-  animation-duration: 3s;
-  animation-name: highlight;
-}
-
+.update-animation { animation-duration: 3s; animation-name: highlight;}
 @keyframes highlight {
-  from {
-    background-color: greenyellow;
-  }
-
-  to {
-    background-color: transparent;
-  }
+  from { background-color: #59E817; }
+  to { background-color: transparent; }
 }
-
-body  { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color:#828282; }
-td    { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color:#828282; }
-
-.subtext td { font-family:Verdana, Geneva, sans-serif; font-size:  7pt; color:#828282; }
-
+table { border: 0; border-spacing: 0; border-collapse: separate;}
+td { padding: 0; }
+.align-right-top { text-align: right; vertical-align: top;}
+#hnmain { border-spacing: 1px; width: 85%; background-color: #f6f6ef;}
+body, td, .title  { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color:#828282; }
+.header {padding:2px 23px;}
+.orange-bg { background-color:  #ff6600;}
+.bottom-ruler {height:2px; }
+.spacer { height: 5px; }
+.rank {padding-right:8px;}
+.subtext { font-family:Verdana, Geneva, sans-serif; font-size:  7pt; color:#828282; }
+.pagetop { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#222222; font-weight: bold;}
 a:link    { color:#000000; text-decoration:none; }
 a:visited { color:#828282; text-decoration:none; }
-
-.title   { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#828282; }
-.subtext { font-family:Verdana, Geneva, sans-serif; font-size:  7pt; color:#828282; }
-.pagetop { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#222222; }
-.hnname  { margin-right: 5px; }
-
 .subtext a:link, .subtext a:visited { color:#828282; }
 .subtext a:hover { text-decoration:underline; }
-
-.votearrow {
-  width:      10px;
-  height:     10px;
-  border:     0px;
-  margin:     3px 2px 6px;
-  /*background: url("grayarrow.gif")
-  no-repeat;*/
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
-  .votearrow { background-size: 10px; /*background-image: url("grayarrow2x.gif"); */}
-}
-
-/* mobile device */
 @media only screen
-and (min-width : 300px)
+and (min-width : 100px)
 and (max-width : 750px) {
   #hnmain { width: 100%; }
   body { padding: 0; margin: 0; width: 100%; -webkit-text-size-adjust: none; }
-  td { height: inherit !important; }
-  .title, .comment { font-size: inherit;  }
-  span.pagetop { display: block; margin: 3px 5px; font-size: 12px; }
-  span.pagetop b { display: block; font-size: 15px; }
+  .pagetop { display: block; font-size: 15px; }
   .title { font-size: 11pt; line-height: 14pt;  }
   .subtext { font-size: 9pt; }
   .itemlist { padding-right: 5px;}
-  .votelinks { min-width: 18px; }
-  .votelinks a { display: block; margin-bottom: 9px; }
 }
 
 
