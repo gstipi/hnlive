@@ -1,6 +1,6 @@
 defmodule HNLive.Watcher do
   use GenServer
-  alias HNLive.Api
+  alias HNLive.{Api, Presence}
   alias Phoenix.PubSub
 
   # time after which initial HN API call to get newest stories
@@ -25,8 +25,14 @@ defmodule HNLive.Watcher do
     GenServer.call(__MODULE__, :get_top_newest_stories)
   end
 
-  def subscribe() do
+  def subscribe(socket_id) do
+    current_visitor_count =
+      Presence.list(@pub_sub_topic)
+      |> map_size
+
     PubSub.subscribe(@pub_sub, @pub_sub_topic)
+    Presence.track(self(), @pub_sub_topic, socket_id, %{})
+    current_visitor_count
   end
 
   # Server

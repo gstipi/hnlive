@@ -51,3 +51,4 @@ To the supervision tree in `HNLive.Application`, add
 :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30)
 ```
 
+TODO: add Phoenix.Presence to see how many people are currently on the page!

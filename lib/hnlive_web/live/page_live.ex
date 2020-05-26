@@ -4,11 +4,19 @@ defmodule HNLiveWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    if connected?(socket) do
-      HNLive.Watcher.subscribe()
-    end
+    current_visitor_count =
+      if connected?(socket) do
+        HNLive.Watcher.subscribe(socket.id)
+      else
+        0
+      end
 
-    socket = assign(socket, :top_newest, Watcher.get_top_newest_stories())
+    socket =
+      assign(socket,
+        top_newest: Watcher.get_top_newest_stories(),
+        current_visitor_count: current_visitor_count
+      )
+
     {:ok, socket, temporary_assigns: [top_newest: []]}
   end
 
@@ -19,7 +27,11 @@ defmodule HNLiveWeb.PageLive do
       <table id="hnmain">
         <tbody>
           <tr>
-            <td class="orange-bg header"><span class="pagetop">HN Top 10 Newest Posts Live</span></td>
+            <td class="orange-bg header">
+              <span class="pagetop">
+                HN Top 10 Newest Posts Live
+              </span>
+            </td>
           </tr>
           <tr class="spacer"></tr>
           <tr>
@@ -27,7 +39,7 @@ defmodule HNLiveWeb.PageLive do
               <%= if length(@top_newest) > 0 do %>
               <table class="itemlist">
                 <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
-                  <tr class="athing <%= class_update_animation(updated) %>">
+                  <tr class="<%= class_update_animation(updated) %>">
                     <td class="title align-right-top"><span class="rank"><%= idx + 1 %>.</span></td>
                     <td class="title">
                       <a class="storylink" href="<%= url %>"><%= title %></a>
@@ -50,6 +62,12 @@ defmodule HNLiveWeb.PageLive do
               <% end %>
             </td>
           </tr>
+          <%= if @current_visitor_count > 0 do %>
+          <tr>
+            <td class="subtext" style="text-align: center;">Current visitor count: <%= @current_visitor_count %></td>
+          </tr>
+          <tr class="spacer"></tr>
+          <% end %>
           <tr>
             <td class="bottom-ruler orange-bg"></td>
           </tr>
@@ -62,6 +80,16 @@ defmodule HNLiveWeb.PageLive do
   @impl true
   def handle_info({:update_top_newest, top_newest}, socket) do
     {:noreply, assign(socket, :top_newest, top_newest)}
+  end
+
+  @impl true
+  def handle_info(
+        %{event: "presence_diff", payload: %{joins: joins, leaves: leaves}},
+        %{assigns: %{current_visitor_count: count}} = socket
+      ) do
+    current_visitor_count = count + map_size(joins) - map_size(leaves)
+
+    {:noreply, assign(socket, :current_visitor_count, current_visitor_count)}
   end
 
   defp class_update_animation(show) do
