@@ -29,8 +29,6 @@ a:visited { color:#828282; text-decoration:none; }
 .pagetop { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#222222; }
 .hnname  { margin-right: 5px; }
 
-.pagetop a:visited { color:#000000;}
-
 .subtext a:link, .subtext a:visited { color:#828282; }
 .subtext a:hover { text-decoration:underline; }
 
@@ -57,8 +55,6 @@ and (max-width : 750px) {
   .title, .comment { font-size: inherit;  }
   span.pagetop { display: block; margin: 3px 5px; font-size: 12px; }
   span.pagetop b { display: block; font-size: 15px; }
-  table.comment-tree .comment a { display: inline-block; max-width: 200px; overflow: hidden; white-space: nowrap;
-    text-overflow: ellipsis; vertical-align:top; }
   .title { font-size: 11pt; line-height: 14pt;  }
   .subtext { font-size: 9pt; }
   .itemlist { padding-right: 5px;}
