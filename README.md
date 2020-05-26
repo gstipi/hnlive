@@ -1,4 +1,4 @@
-# Hnlive
+# HNLive
 
 To start your Phoenix server:
 

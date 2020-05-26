@@ -142,7 +142,7 @@ defmodule HNLive.Watcher do
         # so we broadcast top_newest
         {true, top_newest}
       else
-        # at least one update? needs to be true to broadcast
+        # at least one update required to broadcast
         {Enum.any?(mark_updated, &elem(&1, 5)), mark_updated}
       end
 
