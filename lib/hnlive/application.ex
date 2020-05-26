@@ -17,7 +17,7 @@ defmodule HNLive.Application do
       :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30),
       # Start HackerNews watcher
       HNLive.Watcher,
-      # Presence Tracker
+      # Start Presence Tracker
       HNLive.Presence
     ]
 

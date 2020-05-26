@@ -26,13 +26,10 @@ defmodule HNLive.Watcher do
   end
 
   def subscribe(socket_id) do
-    current_visitor_count =
-      Presence.list(@pub_sub_topic)
-      |> map_size
-
-    PubSub.subscribe(@pub_sub, @pub_sub_topic)
-    Presence.track(self(), @pub_sub_topic, socket_id, %{})
-    current_visitor_count
+    current_subscriber_count = map_size(Presence.list(@pub_sub_topic))
+    :ok = PubSub.subscribe(@pub_sub, @pub_sub_topic)
+    {:ok, _} = Presence.track(self(), @pub_sub_topic, socket_id, %{})
+    current_subscriber_count
   end
 
   # Server
