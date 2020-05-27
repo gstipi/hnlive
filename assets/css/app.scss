@@ -2,10 +2,20 @@
 @import "../node_modules/nprogress/nprogress.css";
 
 $spacer-height: 5px;
-$primary-color: #ff6600;
-$background-color: #f6f6ef;
-$text-primary-color: #000000;
-$text-secondary-color: #828282;
+
+
+// $body-color: white;
+// $primary-color: #ff6600;
+// $background-color: #f6f6ef;
+// $text-primary-color: #000000;
+// $text-secondary-color: #828282;
+// $animation-highlight-color: #59E817;
+
+$body-color: #333a4a;
+$primary-color: #4a3226;
+$background-color:#1F2430;
+$text-primary-color:#fafafa;
+$text-secondary-color: #8c96ac;
 $animation-highlight-color: #59E817;
 
 @mixin font-base { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color: $text-secondary-color; }
@@ -16,7 +26,7 @@ $animation-highlight-color: #59E817;
   to { background-color: transparent; }
 }
 
-body { @include font-base; padding: 0; margin: 0; width: 100%; -webkit-text-size-adjust: none; }
+body { @include font-base; padding: 0; margin: 0; width: 100%; -webkit-text-size-adjust: none; background-color: $body-color; }
 .subtext { font-size: 7pt; }
 a:link    { color: $text-primary-color; text-decoration:none; }
 a:visited { color: $text-secondary-color; text-decoration:none; }
@@ -33,7 +43,7 @@ a:visited { color: $text-secondary-color; text-decoration:none; }
 .page-header { 
   padding:2px 23px; 
   margin-bottom: $spacer-height; 
-  color:#222222; 
+  color: $text-primary-color; 
   font-weight: bold; 
   background-color: $primary-color;
 }
