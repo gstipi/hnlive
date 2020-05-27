@@ -20,57 +20,29 @@ defmodule HNLiveWeb.PageLive do
   @impl true
   def render(assigns) do
     ~L"""
-    <center>
-      <table id="hnmain">
-        <tbody>
-          <tr>
-            <td class="orange-bg header">
-              <span class="pagetop">
-                HN Top 10 Newest Posts Live
-              </span>
-            </td>
-          </tr>
-          <tr class="spacer"></tr>
-          <tr>
-            <td>
-              <%= if length(@top_newest) > 0 do %>
-              <table class="itemlist">
-                <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
-                  <tr class="<%= class_update_animation(updated) %>">
-                    <td class="title align-right-top"><span class="rank"><%= idx + 1 %>.</span></td>
-                    <td class="title">
-                      <a class="storylink" href="<%= url %>"><%= title %></a>
-                    </td>
-                  </tr>
-                  <tr class="<%= class_update_animation(updated) %>">
-                    <td></td>
-                    <td class="subtext">
-                      <span class="score"><%= score %> points</span>
-                      |
-                      <a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %> comments</a>
-                    </td>
-                  </tr>
-                  <tr class="spacer"></tr>
-                <% end %>
-                </tbody>
-              </table>
-              <% else %>
-              <p> No data available yet. </p>
-              <% end %>
-            </td>
-          </tr>
-          <%= if @current_visitor_count > 0 do %>
-          <tr>
-            <td class="subtext" style="text-align: center;">Current visitor count: <%= @current_visitor_count %></td>
-          </tr>
-          <tr class="spacer"></tr>
-          <% end %>
-          <tr>
-            <td class="bottom-ruler orange-bg"></td>
-          </tr>
-        </tbody>
-      </table>
-    </center>
+    <div class="page-container">
+      <div class="page-header">
+        <span>HN Top 10 Newest Posts Live</span>
+      </div>
+      <%= if length(@top_newest) > 0 do %>
+      <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
+      <div class="row <%= class_update_animation(updated) %>">
+        <div class="rank"><%= idx + 1 %>.</div>
+        <div class="info-col">
+          <a class="title" href="<%= url %>"><%= title %></a>
+          <div class="subtext"><%= score %> points | <a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %> comments</a>
+          </div>
+        </div>
+      </div>
+      <% end %>
+      <% else %>
+      <div class="subtext"> No data available yet. </div>
+      <% end %>
+      <%= if @current_visitor_count > 0 do %>
+      <div class="visitor-count">Current visitor count: <%= @current_visitor_count %></div>
+      <% end %>
+      <div class="page-footer"></div>
+    </div>
     """
   end
 

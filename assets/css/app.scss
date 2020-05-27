@@ -1,36 +1,53 @@
 /* This file is for your main application css. */
 @import "../node_modules/nprogress/nprogress.css";
 
+$spacer-height: 5px;
+$primary-color: #ff6600;
+$background-color: #f6f6ef;
+$text-primary-color: #000000;
+$text-secondary-color: #828282;
+$animation-highlight-color: #59E817;
+
+@mixin font-base { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color: $text-secondary-color; }
+
 .update-animation { animation-duration: 3s; animation-name: highlight;}
 @keyframes highlight {
-  from { background-color: #59E817; }
+  from { background-color: $animation-highlight-color; }
   to { background-color: transparent; }
 }
-table { border: 0; border-spacing: 0; border-collapse: separate;}
-td { padding: 0; }
-.align-right-top { text-align: right; vertical-align: top;}
-#hnmain { border-spacing: 1px; width: 85%; background-color: #f6f6ef;}
-body, td, .title  { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color:#828282; }
-.header {padding:2px 23px;}
-.orange-bg { background-color:  #ff6600;}
-.bottom-ruler {height:2px; }
-.spacer { height: 5px; }
-.rank {padding-right:8px;}
-.subtext { font-family:Verdana, Geneva, sans-serif; font-size:  7pt; color:#828282; }
-.pagetop { font-family:Verdana, Geneva, sans-serif; font-size: 10pt; color:#222222; font-weight: bold;}
-a:link    { color:#000000; text-decoration:none; }
-a:visited { color:#828282; text-decoration:none; }
-.subtext a:link, .subtext a:visited { color:#828282; }
+
+body { @include font-base; padding: 0; margin: 0; width: 100%; -webkit-text-size-adjust: none; }
+.subtext { font-size: 7pt; }
+a:link    { color: $text-primary-color; text-decoration:none; }
+a:visited { color: $text-secondary-color; text-decoration:none; }
+.subtext a:link, .subtext a:visited { color:$text-secondary-color; }
 .subtext a:hover { text-decoration:underline; }
+.page-container { 
+  display: flex; 
+  flex-direction: column; 
+  width: 85%; 
+  margin-left: auto; 
+  margin-right: auto; 
+  background-color:$background-color; 
+}
+.page-header { 
+  padding:2px 23px; 
+  margin-bottom: $spacer-height; 
+  color:#222222; 
+  font-weight: bold; 
+  background-color: $primary-color;
+}
+.page-footer {height:2px; background-color: $primary-color; }
+.row { display: flex; flex-direction: row; margin-bottom: $spacer-height;}
+.rank { text-align: right; vertical-align: top; padding-right: 8px;  width: 22px;}
+.info-col { display: flex; flex-direction: column; }
+.visitor-count {font-size: 7pt; text-align: center; margin-bottom: $spacer-height;}
+
 @media only screen
 and (min-width : 100px)
 and (max-width : 750px) {
-  #hnmain { width: 100%; }
-  body { padding: 0; margin: 0; width: 100%; -webkit-text-size-adjust: none; }
-  .pagetop { display: block; font-size: 15px; }
-  .title { font-size: 11pt; line-height: 14pt;  }
-  .subtext { font-size: 9pt; }
-  .itemlist { padding-right: 5px;}
+  .page-container { width: 100%; }
+  .page-header { font-size: 15px; }
+  .rank, .title { font-size: 11pt; line-height: 14pt;  }
+  .subtext, .visitor-count { font-size: 9pt; }
 }
-
-
