@@ -51,4 +51,15 @@ To the supervision tree in `HNLive.Application`, add
 :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30)
 ```
 
-TODO: add Phoenix.Presence to see how many people are currently on the page!
+DONE: add Phoenix.Presence to see how many people are currently on the page!
+
+remote: Starting zero-downtime rolling deploy.
+remote: Please wait a minute for the new instance(s) to roll out and pass health checks.
+remote: For troubleshooting, See:      http://gigalixir.readthedocs.io/en/latest/main.html#troubleshooting
+remote: For help, contact:             help@gigalixir.com
+remote: Try hitting your app with:     curl https://jagged-grubby-leafwing.gigalixirapp.com/
+remote: Check your app logs with:      gigalixir logs -a jagged-grubby-leafwing
+remote: Check deploy status with:      gigalixir ps -a jagged-grubby-leafwing
+remote: Updated property [core/account].
+To https://git.gigalixir.com/jagged-grubby-leafwing.git/
+ * [new branch]      master -> master
