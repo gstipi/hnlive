@@ -4,19 +4,19 @@
 $spacer-height: 5px;
 
 
-// $body-color: white;
-// $primary-color: #ff6600;
-// $background-color: #f6f6ef;
-// $text-primary-color: #000000;
-// $text-secondary-color: #828282;
-// $animation-highlight-color: #59E817;
-
-$body-color: #333a4a;
-$primary-color: #4a3226;
-$background-color:#1F2430;
-$text-primary-color:#fafafa;
-$text-secondary-color: #8c96ac;
+$body-color: white;
+$primary-color: #ff6600;
+$background-color: #f6f6ef;
+$text-primary-color: #000000;
+$text-secondary-color: #828282;
 $animation-highlight-color: #59E817;
+
+// $body-color: #333a4a;
+// $primary-color: #4a3226;
+// $background-color:#1F2430;
+// $text-primary-color:#fafafa;
+// $text-secondary-color: #8c96ac;
+// $animation-highlight-color: #59E817;
 
 @mixin font-base { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color: $text-secondary-color; }
 
