@@ -22,7 +22,7 @@ defmodule HNLiveWeb.PageLive do
     ~L"""
     <div class="page-container">
       <div class="page-header">
-        <span>HN Top 10 Newest Posts Live</span>
+        HN Top 10 Newest Posts Live
       </div>
       <%= if length(@top_newest) > 0 do %>
       <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
