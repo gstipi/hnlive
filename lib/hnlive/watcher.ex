@@ -25,11 +25,13 @@ defmodule HNLive.Watcher do
     GenServer.call(__MODULE__, :get_top_newest_stories)
   end
 
+  def get_current_subscriber_count() do
+    map_size(Presence.list(@pub_sub_topic))
+  end
+
   def subscribe(socket_id) do
-    current_subscriber_count = map_size(Presence.list(@pub_sub_topic))
     :ok = PubSub.subscribe(@pub_sub, @pub_sub_topic)
     {:ok, _} = Presence.track(self(), @pub_sub_topic, socket_id, %{})
-    current_subscriber_count
   end
 
   # Server
@@ -150,7 +152,7 @@ defmodule HNLive.Watcher do
       end
 
     if broadcast,
-      do: PubSub.broadcast(@pub_sub, @pub_sub_topic, {:update_top_newest, to_broadcast})
+      do: PubSub.broadcast!(@pub_sub, @pub_sub_topic, {:update_top_newest, to_broadcast})
 
     top_newest
   end

@@ -4,12 +4,9 @@ defmodule HNLiveWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    current_visitor_count =
-      if connected?(socket) do
-        HNLive.Watcher.subscribe(socket.id)
-      else
-        0
-      end
+    current_visitor_count = HNLive.Watcher.get_current_subscriber_count()
+
+    if connected?(socket), do: HNLive.Watcher.subscribe(socket.id)
 
     socket =
       assign(socket,
