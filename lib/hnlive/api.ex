@@ -14,7 +14,19 @@ defmodule HNLive.Api do
   Gets the 500 newest stories from the offical Hacker News API (via the `/v0/newstories` endpoint).
 
   Returns a map of story IDs to a story information map with the keys `score`, `title`, `comments`,
-  and `url`.
+  and `url`, e.g.
+
+  ```
+  %{
+    23319901 => %{
+      comments: 197,
+      score: 551,
+      title: "Supabase (YC S20) – An open source Firebase alternative",
+      url: "https://supabase.io/"
+    },
+  ...
+  }
+  ```
 
   If the story is an "Ask HN" or "Show HN" item, the `url` will point to the associated Hacker News
   comments thread. For regular stories, the `url` will point to the submitted story, as expected.
@@ -36,7 +48,7 @@ defmodule HNLive.Api do
   @doc """
   Gets recently changed items from the `/v0/updates` endpoint.any()
 
-  Returns `{:ok, [IDs of changed items]}` or the `{:error, ...}` encountered during the function call.
+  Returns `{:ok, [IDs of changed items]}` or an `{:error, ...}` encountered during the function call.
   """
   def get_updates() do
     with {:ok, json} <- get_and_decode("https://hacker-news.firebaseio.com/v0/updates.json"),
