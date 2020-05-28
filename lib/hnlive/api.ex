@@ -74,7 +74,13 @@ defmodule HNLive.Api do
   end
 
   defp parse_story(
-         %{"id" => id, "score" => score, "title" => title, "descendants" => comments} = item
+         %{
+           "type" => "story",
+           "id" => id,
+           "score" => score,
+           "title" => title,
+           "descendants" => comments
+         } = item
        ) do
     [
       {

@@ -69,10 +69,7 @@ defmodule HNLive.Watcher do
           # get smallest story id, or 0 if stories is empty
           {min_id, _} = Enum.min_by(stories, &elem(&1, 0), fn -> {0, nil} end)
 
-          filtered_ids =
-            Enum.filter(updated_ids, fn id ->
-              id >= min_id && Map.has_key?(stories, id)
-            end)
+          filtered_ids = Enum.filter(updated_ids, &(&1 >= min_id))
 
           run_api_task(:updates, fn -> Api.get_many_stories(filtered_ids) end)
 
