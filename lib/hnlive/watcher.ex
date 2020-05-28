@@ -120,7 +120,12 @@ defmodule HNLive.Watcher do
       stories
       |> Enum.map(fn {
                        id,
-                       %{score: score, title: title, comments: comments, url: url}
+                       %{
+                         score: score,
+                         title: title,
+                         comments: comments,
+                         url: url
+                       }
                      } ->
         %{
           id: id,
@@ -134,12 +139,25 @@ defmodule HNLive.Watcher do
       |> Enum.sort_by(&Map.fetch!(&1, :score), :desc)
       |> Enum.take(@top_story_count)
 
+    current_time = DateTime.utc_now() |> DateTime.to_unix()
+
+    top_newest =
+      Enum.map(top_newest, fn story ->
+        creation_time = get_in(stories, [story.id, :creation_time])
+        Map.put(story, :creation_time, humanize_time(current_time - creation_time))
+      end)
+
     # we compare new and previous top stories and mark changes by setting
     # :updated in the story map
     mark_updated =
       Enum.zip(top_newest, previous_top_newest)
-      |> Enum.map(fn {new, old} ->
-        Map.put(new, :updated, Map.delete(new, :updated) != Map.delete(old, :updated))
+      |> Enum.map(fn {%{id: new_id, score: new_score, comments: new_comments} = new,
+                      %{id: old_id, score: old_score, comments: old_comments}} ->
+        Map.put(
+          new,
+          :updated,
+          new_id != old_id || new_score != old_score || new_comments != old_comments
+        )
       end)
 
     # check whether we should broadcast updates, no need if no changes
@@ -151,13 +169,26 @@ defmodule HNLive.Watcher do
         # so we broadcast top_newest
         {true, top_newest}
       else
-        # at least one update required to broadcast
+        # at least one updated entry required to broadcast
         {Enum.any?(mark_updated, &Map.fetch!(&1, :updated)), mark_updated}
       end
 
-    if broadcast,
-      do: PubSub.broadcast!(@pub_sub, @pub_sub_topic, {:update_top_newest, to_broadcast})
+    if broadcast do
+      PubSub.broadcast!(@pub_sub, @pub_sub_topic, {:update_top_newest, to_broadcast})
+    end
 
     top_newest
+  end
+
+  defp humanize_time(seconds) do
+    cond do
+      seconds == 1 -> "1 second ago"
+      seconds < 60 -> "#{seconds} seconds ago"
+      seconds < 120 -> "1 minute ago"
+      seconds < 3600 -> "#{div(seconds, 60)} minutes ago"
+      seconds < 7200 -> "1 hour ago"
+      seconds < 3600 * 24 -> "#{div(seconds, 3600)} hours ago"
+      true -> "> 1 day ago"
+    end
   end
 end

@@ -14,7 +14,7 @@ defmodule HNLive.Api do
   Gets the 500 newest stories from the offical Hacker News API (via the `/v0/newstories` endpoint).
 
   Returns a map of story IDs to a story information map with the keys `score`, `title`, `comments`,
-  and `url`, e.g.
+  `creation_time` and `url`, e.g.
 
   ```
   %{
@@ -22,7 +22,8 @@ defmodule HNLive.Api do
       comments: 197,
       score: 551,
       title: "Supabase (YC S20) – An open source Firebase alternative",
-      url: "https://supabase.io/"
+      url: "https://supabase.io/",
+      creation_time: ...
     },
   ...
   }
@@ -61,7 +62,7 @@ defmodule HNLive.Api do
   Gets the stories corresponding to the given list of IDs.
 
   Returns a map of story IDs to a story information map with the keys `score`, `title`, `comments`,
-  and `url`, similar to `get_newest_stories/0`.
+  `creation_time` and `url`, similar to `get_newest_stories/0`.
 
   The function deals with IDs which do not correspond to stories by simply ignoring the results.
 
@@ -79,7 +80,8 @@ defmodule HNLive.Api do
            "id" => id,
            "score" => score,
            "title" => title,
-           "descendants" => comments
+           "descendants" => comments,
+           "time" => time
          } = item
        ) do
     [
@@ -89,6 +91,7 @@ defmodule HNLive.Api do
           score: score,
           title: title,
           comments: comments,
+          creation_time: time,
           # if no url is present, insert a url pointing to the corresponding
           # Hacker News comments thread
           url: Map.get(item, "url", "https://news.ycombinator.com/item?id=#{id}")

@@ -31,7 +31,8 @@ defmodule HNLiveWeb.PageLive do
                   title: title,
                   comments: comments,
                   url: url,
-                  updated: updated
+                  updated: updated,
+                  creation_time: creation_time
                 },
                 idx
               } <- Enum.with_index(@top_newest) do %>
@@ -39,7 +40,8 @@ defmodule HNLiveWeb.PageLive do
         <div class="rank"><%= idx + 1 %>.</div>
         <div class="info-col">
           <a class="title" href="<%= url %>"><%= title %></a>
-          <div class="subtext"><%= score %> points | <a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %> comments</a>
+          <div class="subtext"><%= score %> points | <%= creation_time %> |
+            <a href="https://news.ycombinator.com/item?id=<%= id %>"><%= comments %> comments</a>
           </div>
         </div>
       </div>
