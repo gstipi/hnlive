@@ -108,10 +108,5 @@ defmodule HNLiveWeb.PageLive do
     {:noreply, assign(socket, :current_visitor_count, current_visitor_count)}
   end
 
-  defp class_update_animation(show) do
-    case show do
-      true -> "update-animation"
-      false -> ""
-    end
-  end
+  defp class_update_animation(show), do: if(show, do: "update-animation", else: "")
 end

@@ -122,13 +122,11 @@ defmodule HNLive.Watcher do
     end)
   end
 
-  defp run_init(timeout \\ 0) do
-    run_api_task(:init, &Api.get_newest_stories/0, timeout)
-  end
+  defp run_init(timeout \\ 0),
+    do: run_api_task(:init, &Api.get_newest_stories/0, timeout)
 
-  defp run_get_updated_ids(timeout \\ 0) do
-    run_api_task(:get_updated_ids, &Api.get_updates/0, timeout)
-  end
+  defp run_get_updated_ids(timeout \\ 0),
+    do: run_api_task(:get_updated_ids, &Api.get_updates/0, timeout)
 
   defp update_top_newest_by(stories, previous_top_newest_by \\ %{}) do
     {top_newest_by_score, changes_by_score} =
@@ -198,17 +196,13 @@ defmodule HNLive.Watcher do
       end)
 
     changes =
-      if mark_updated == [] do
+      cond do
         # mark_updated will be [] if previous_top_newest == [] because
         # the Enum.zip above will result in an empty list then
-        top_newest
-      else
+        mark_updated == [] -> top_newest
         # at least one updated entry required
-        if Enum.any?(mark_updated, &Map.fetch!(&1, :updated)) do
-          mark_updated
-        else
-          []
-        end
+        Enum.any?(mark_updated, &Map.fetch!(&1, :updated)) -> mark_updated
+        true -> []
       end
 
     {top_newest, changes}
