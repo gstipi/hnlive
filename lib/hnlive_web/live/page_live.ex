@@ -4,17 +4,37 @@ defmodule HNLiveWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    current_visitor_count = HNLive.Watcher.get_current_subscriber_count()
+    current_visitor_count = Watcher.get_current_subscriber_count()
 
-    if connected?(socket), do: HNLive.Watcher.subscribe(socket.id)
+    if connected?(socket), do: Watcher.subscribe(socket.id)
 
     socket =
       assign(socket,
-        top_newest: Watcher.get_top_newest_stories(),
-        current_visitor_count: current_visitor_count
+        stories: Watcher.get_top_newest_stories_by(:score),
+        current_visitor_count: current_visitor_count,
+        sort_by: :score
       )
 
-    {:ok, socket, temporary_assigns: [top_newest: []]}
+    {:ok, socket, temporary_assigns: [stories: []]}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    socket =
+      case params["sort_by"] do
+        sort_by when sort_by in ~w(score comments) ->
+          sort_by = String.to_atom(sort_by)
+
+          assign(socket,
+            sort_by: sort_by,
+            stories: Watcher.get_top_newest_stories_by(sort_by)
+          )
+
+        _ ->
+          socket
+      end
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -24,7 +44,11 @@ defmodule HNLiveWeb.PageLive do
       <div class="page-header">
         HN Top 10 Newest Posts Live
       </div>
-      <%= if length(@top_newest) > 0 do %>
+      <div class="title">
+        <a class="title"><%= live_patch "Sort by score", to: Routes.page_path(@socket, :index, %{sort_by: "score"}) %></a>
+        | <a class="title"><%= live_patch "Sort by number of comments", to: Routes.page_path(@socket, :index, %{sort_by: "comments"}) %></a>
+      </div>
+      <%= if length(@stories) > 0 do %>
       <%= for {%{
                   id: id,
                   score: score,
@@ -35,7 +59,7 @@ defmodule HNLiveWeb.PageLive do
                   creation_time: creation_time
                 },
                 idx
-              } <- Enum.with_index(@top_newest) do %>
+              } <- Enum.with_index(@stories) do %>
       <div class="row <%= class_update_animation(updated) %>">
         <div class="rank"><%= idx + 1 %>.</div>
         <div class="info-col">
@@ -58,8 +82,20 @@ defmodule HNLiveWeb.PageLive do
   end
 
   @impl true
-  def handle_info({:update_top_newest, top_newest}, socket) do
-    {:noreply, assign(socket, :top_newest, top_newest)}
+  def handle_info(
+        {:update_top_newest_by, stories},
+        socket
+      ) do
+    stories = Map.fetch!(stories, socket.assigns.sort_by)
+
+    socket =
+      if length(stories) > 0 do
+        assign(socket, :stories, stories)
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   @impl true

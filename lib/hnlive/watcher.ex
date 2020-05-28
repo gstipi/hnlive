@@ -21,8 +21,8 @@ defmodule HNLive.Watcher do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
-  def get_top_newest_stories() do
-    GenServer.call(__MODULE__, :get_top_newest_stories)
+  def get_top_newest_stories_by(sort_by) do
+    GenServer.call(__MODULE__, {:get_top_newest_stories_by, sort_by})
   end
 
   def get_current_subscriber_count() do
@@ -40,18 +40,28 @@ defmodule HNLive.Watcher do
   def init(_) do
     run_init()
     run_get_updated_ids()
-    {:ok, %{stories: %{}, top_newest: [], last_updated_ids: []}}
+    {:ok, %{stories: %{}, last_updated_ids: [], top_newest_by: %{}}}
   end
 
   @impl true
-  def handle_call(:get_top_newest_stories, _from, %{top_newest: top_newest} = state) do
-    {:reply, top_newest, state}
+  def handle_call(
+        {:get_top_newest_stories_by, sort_by},
+        _from,
+        %{top_newest_by: top_newest_by} = state
+      ) do
+    {:reply, Map.get(top_newest_by, sort_by, []), state}
   end
 
   @impl true
   def handle_info({:init, stories}, state) do
     if map_size(stories) == 0, do: run_init(@retry_init_after)
-    {:noreply, %{state | stories: stories, top_newest: update_top_newest(stories)}}
+
+    {:noreply,
+     %{
+       state
+       | stories: stories,
+         top_newest_by: update_top_newest_by(stories)
+     }}
   end
 
   @impl true
@@ -87,7 +97,7 @@ defmodule HNLive.Watcher do
   @impl true
   def handle_info(
         {:updates, updated_stories},
-        %{stories: stories, top_newest: top_newest} = state
+        %{stories: stories, top_newest_by: top_newest_by} = state
       ) do
     stories =
       Map.merge(stories, updated_stories)
@@ -95,7 +105,12 @@ defmodule HNLive.Watcher do
       |> Enum.take(500)
       |> Enum.into(%{})
 
-    {:noreply, %{state | stories: stories, top_newest: update_top_newest(stories, top_newest)}}
+    {:noreply,
+     %{
+       state
+       | stories: stories,
+         top_newest_by: update_top_newest_by(stories, top_newest_by)
+     }}
   end
 
   defp run_api_task(name, api_fn, timeout \\ 0) do
@@ -115,7 +130,27 @@ defmodule HNLive.Watcher do
     run_api_task(:get_updated_ids, &Api.get_updates/0, timeout)
   end
 
-  defp update_top_newest(stories, previous_top_newest \\ []) do
+  defp update_top_newest_by(stories, previous_top_newest_by \\ %{}) do
+    {top_newest_by_score, changes_by_score} =
+      get_top_newest_and_changes_by(:score, stories, Map.get(previous_top_newest_by, :score, []))
+
+    {top_newest_by_comments, changes_by_comments} =
+      get_top_newest_and_changes_by(
+        :comments,
+        stories,
+        Map.get(previous_top_newest_by, :comments, [])
+      )
+
+    PubSub.broadcast!(
+      @pub_sub,
+      @pub_sub_topic,
+      {:update_top_newest_by, %{score: changes_by_score, comments: changes_by_comments}}
+    )
+
+    %{score: top_newest_by_score, comments: top_newest_by_comments}
+  end
+
+  defp get_top_newest_and_changes_by(sort_by, stories, previous_top_newest) do
     top_newest =
       stories
       |> Enum.map(fn {
@@ -136,7 +171,7 @@ defmodule HNLive.Watcher do
           updated: false
         }
       end)
-      |> Enum.sort_by(&Map.fetch!(&1, :score), :desc)
+      |> Enum.sort_by(&Map.fetch!(&1, sort_by), :desc)
       |> Enum.take(@top_story_count)
 
     current_time = DateTime.utc_now() |> DateTime.to_unix()
@@ -160,24 +195,21 @@ defmodule HNLive.Watcher do
         )
       end)
 
-    # check whether we should broadcast updates, no need if no changes
-    # where made to the top stories
-    {broadcast, to_broadcast} =
+    changes =
       if mark_updated == [] do
         # mark_updated will be [] if previous_top_newest == [] because
-        # the Enum.zip above will result in an empty list then,
-        # so we broadcast top_newest
-        {true, top_newest}
+        # the Enum.zip above will result in an empty list then
+        top_newest
       else
-        # at least one updated entry required to broadcast
-        {Enum.any?(mark_updated, &Map.fetch!(&1, :updated)), mark_updated}
+        # at least one updated entry required
+        if Enum.any?(mark_updated, &Map.fetch!(&1, :updated)) do
+          mark_updated
+        else
+          []
+        end
       end
 
-    if broadcast do
-      PubSub.broadcast!(@pub_sub, @pub_sub_topic, {:update_top_newest, to_broadcast})
-    end
-
-    top_newest
+    {top_newest, changes}
   end
 
   defp humanize_time(seconds) do
