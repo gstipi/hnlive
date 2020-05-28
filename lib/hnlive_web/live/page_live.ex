@@ -25,7 +25,16 @@ defmodule HNLiveWeb.PageLive do
         HN Top 10 Newest Posts Live
       </div>
       <%= if length(@top_newest) > 0 do %>
-      <%= for {{id, score, title, comments, url, updated},idx} <- Enum.with_index(@top_newest) do %>
+      <%= for {%{
+                  id: id,
+                  score: score,
+                  title: title,
+                  comments: comments,
+                  url: url,
+                  updated: updated
+                },
+                idx
+              } <- Enum.with_index(@top_newest) do %>
       <div class="row <%= class_update_animation(updated) %>">
         <div class="rank"><%= idx + 1 %>.</div>
         <div class="info-col">

@@ -116,23 +116,30 @@ defmodule HNLive.Watcher do
   end
 
   defp update_top_newest(stories, previous_top_newest \\ []) do
-    # convert into {id, title, score, updated?} tuples
-    # sort by score and take the top stories
     top_newest =
       stories
-      |> Enum.map(fn {id, %{score: score, title: title, comments: comments, url: url}} ->
-        {id, score, title, comments, url, false}
+      |> Enum.map(fn {
+                       id,
+                       %{score: score, title: title, comments: comments, url: url}
+                     } ->
+        %{
+          id: id,
+          score: score,
+          title: title,
+          comments: comments,
+          url: url,
+          updated: false
+        }
       end)
-      # sort by score
-      |> Enum.sort_by(&elem(&1, 1), :desc)
+      |> Enum.sort_by(&Map.fetch!(&1, :score), :desc)
       |> Enum.take(@top_story_count)
 
     # we compare new and previous top stories and mark changes by setting
-    # the update? position in the story tuple to true, false otherwise
+    # :updated in the story map
     mark_updated =
       Enum.zip(top_newest, previous_top_newest)
       |> Enum.map(fn {new, old} ->
-        put_elem(new, 5, Tuple.delete_at(new, 5) != Tuple.delete_at(old, 5))
+        Map.put(new, :updated, Map.delete(new, :updated) != Map.delete(old, :updated))
       end)
 
     # check whether we should broadcast updates, no need if no changes
@@ -140,12 +147,12 @@ defmodule HNLive.Watcher do
     {broadcast, to_broadcast} =
       if mark_updated == [] do
         # mark_updated will be [] if previous_top_newest == [] because
-        # the Enum.zip above will result in an empty list as well then,
+        # the Enum.zip above will result in an empty list then,
         # so we broadcast top_newest
         {true, top_newest}
       else
         # at least one update required to broadcast
-        {Enum.any?(mark_updated, &elem(&1, 5)), mark_updated}
+        {Enum.any?(mark_updated, &Map.fetch!(&1, :updated)), mark_updated}
       end
 
     if broadcast,
