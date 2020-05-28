@@ -42,11 +42,11 @@ defmodule HNLiveWeb.PageLive do
     ~L"""
     <div class="page-container">
       <div class="page-header">
-        HN Top 10 Newest Posts Live
+        <div class="page-title">HN Top 10 Newest Posts Live</div>
+        <div>
+        <a><%= live_patch "sort by score", to: Routes.page_path(@socket, :index, %{sort_by: "score"}) %></a>
+        | <a><%= live_patch "sort by number of comments", to: Routes.page_path(@socket, :index, %{sort_by: "comments"}) %></a>
       </div>
-      <div class="title">
-        <a class="title"><%= live_patch "Sort by score", to: Routes.page_path(@socket, :index, %{sort_by: "score"}) %></a>
-        | <a class="title"><%= live_patch "Sort by number of comments", to: Routes.page_path(@socket, :index, %{sort_by: "comments"}) %></a>
       </div>
       <%= if length(@stories) > 0 do %>
       <%= for {%{

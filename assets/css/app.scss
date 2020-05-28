@@ -31,13 +31,15 @@ a:visited { color: $text-secondary-color; text-decoration:none; }
   margin-right: auto; 
   background-color:$background-color; 
 }
-.page-header { 
+.page-header {
+  display: flex;
+  flex-direction: row; 
   padding: 2px 23px; 
   margin-bottom: $spacer-height; 
   color: $text-primary-color; 
-  font-weight: bold; 
   background-color: $primary-color;
 }
+.page-title { font-weight: bold; margin-right: 10px;}
 .page-footer {height:2px; background-color: $primary-color; }
 .row { display: flex; flex-direction: row; margin-bottom: $spacer-height;}
 .rank { text-align: right; vertical-align: top; padding-right: 8px; min-width: 22px;}
@@ -49,7 +51,7 @@ and (min-width : 100px)
 and (max-width : 750px) {
   body { padding: 0px; margin: 0px; }
   .page-container { width: 100%; }
-  .page-header { font-size: 15px; }
+  .page-header { font-size: 15px; flex-direction: column; }
   .rank, .title { font-size: 11pt; line-height: 14pt;  }
   .subtext, .visitor-count { font-size: 9pt; }
 }

@@ -141,11 +141,13 @@ defmodule HNLive.Watcher do
         Map.get(previous_top_newest_by, :comments, [])
       )
 
-    PubSub.broadcast!(
-      @pub_sub,
-      @pub_sub_topic,
-      {:update_top_newest_by, %{score: changes_by_score, comments: changes_by_comments}}
-    )
+    if length(changes_by_score) > 0 || length(changes_by_comments) > 0,
+      do:
+        PubSub.broadcast!(
+          @pub_sub,
+          @pub_sub_topic,
+          {:update_top_newest_by, %{score: changes_by_score, comments: changes_by_comments}}
+        )
 
     %{score: top_newest_by_score, comments: top_newest_by_comments}
   end
