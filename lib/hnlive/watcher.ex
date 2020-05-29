@@ -21,8 +21,8 @@ defmodule HNLive.Watcher do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
-  def get_top_newest_stories_by(sort_by) do
-    GenServer.call(__MODULE__, {:get_top_newest_stories_by, sort_by})
+  def get_top_newest_stories(sort_by \\ :score) do
+    GenServer.call(__MODULE__, {:get_top_newest_stories, sort_by})
   end
 
   def get_current_subscriber_count() do
@@ -40,16 +40,16 @@ defmodule HNLive.Watcher do
   def init(_) do
     run_init()
     run_get_updated_ids()
-    {:ok, %{stories: %{}, last_updated_ids: [], top_newest_by: %{}}}
+    {:ok, %{stories: %{}, last_updated_ids: [], top_newest: %{}}}
   end
 
   @impl true
   def handle_call(
-        {:get_top_newest_stories_by, sort_by},
+        {:get_top_newest_stories, sort_by},
         _from,
-        %{top_newest_by: top_newest_by} = state
+        %{top_newest: top_newest} = state
       ) do
-    {:reply, Map.get(top_newest_by, sort_by, []), state}
+    {:reply, Map.get(top_newest, sort_by, []), state}
   end
 
   @impl true
@@ -60,7 +60,7 @@ defmodule HNLive.Watcher do
      %{
        state
        | stories: stories,
-         top_newest_by: update_top_newest_by(stories)
+         top_newest: update_top_newest(stories)
      }}
   end
 
@@ -97,7 +97,7 @@ defmodule HNLive.Watcher do
   @impl true
   def handle_info(
         {:updates, updated_stories},
-        %{stories: stories, top_newest_by: top_newest_by} = state
+        %{stories: stories, top_newest: top_newest} = state
       ) do
     stories =
       Map.merge(stories, updated_stories)
@@ -109,7 +109,7 @@ defmodule HNLive.Watcher do
      %{
        state
        | stories: stories,
-         top_newest_by: update_top_newest_by(stories, top_newest_by)
+         top_newest: update_top_newest(stories, top_newest)
      }}
   end
 
@@ -128,15 +128,11 @@ defmodule HNLive.Watcher do
   defp run_get_updated_ids(timeout \\ 0),
     do: run_api_task(:get_updated_ids, &Api.get_updates/0, timeout)
 
-  defp update_top_newest_by(stories, previous_top_newest_by \\ %{}) do
-    {top_newest_by_score, changes_by_score} =
-      get_top_newest_and_changes_by(:score, stories, Map.get(previous_top_newest_by, :score, []))
-
-    {top_newest_by_comments, changes_by_comments} =
-      get_top_newest_and_changes_by(
-        :comments,
-        stories,
-        Map.get(previous_top_newest_by, :comments, [])
+  defp update_top_newest(stories, previous_top_newest \\ %{}) do
+    [{top_newest_by_score, changes_by_score}, {top_newest_by_comments, changes_by_comments}] =
+      Enum.map(
+        [:score, :comments],
+        &get_top_newest_and_changes(&1, stories, Map.get(previous_top_newest, &1, []))
       )
 
     if length(changes_by_score) > 0 || length(changes_by_comments) > 0,
@@ -144,13 +140,13 @@ defmodule HNLive.Watcher do
         PubSub.broadcast!(
           @pub_sub,
           @pub_sub_topic,
-          {:update_top_newest_by, %{score: changes_by_score, comments: changes_by_comments}}
+          {:update_top_newest, %{score: changes_by_score, comments: changes_by_comments}}
         )
 
     %{score: top_newest_by_score, comments: top_newest_by_comments}
   end
 
-  defp get_top_newest_and_changes_by(sort_by, stories, previous_top_newest) do
+  defp get_top_newest_and_changes(sort_by, stories, previous_top_newest) do
     top_newest =
       stories
       |> Enum.map(fn {

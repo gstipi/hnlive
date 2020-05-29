@@ -10,7 +10,7 @@ defmodule HNLiveWeb.PageLive do
 
     socket =
       assign(socket,
-        stories: Watcher.get_top_newest_stories_by(:score),
+        stories: Watcher.get_top_newest_stories(:score),
         current_visitor_count: current_visitor_count,
         sort_by: :score
       )
@@ -27,7 +27,7 @@ defmodule HNLiveWeb.PageLive do
 
           assign(socket,
             sort_by: sort_by,
-            stories: Watcher.get_top_newest_stories_by(sort_by)
+            stories: Watcher.get_top_newest_stories(sort_by)
           )
 
         _ ->
@@ -83,7 +83,7 @@ defmodule HNLiveWeb.PageLive do
 
   @impl true
   def handle_info(
-        {:update_top_newest_by, stories},
+        {:update_top_newest, stories},
         socket
       ) do
     stories = Map.fetch!(stories, socket.assigns.sort_by)
