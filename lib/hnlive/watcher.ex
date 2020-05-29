@@ -128,6 +128,9 @@ defmodule HNLive.Watcher do
      }}
   end
 
+  # Helper which runs `api_fn` as linked `Task` after an optional `timeout`
+  # (which defaults to 0) and sends the result to the calling process
+  # as a `{name, result}` tuple.
   defp run_api_task(name, api_fn, timeout \\ 0) do
     pid = self()
 
@@ -201,7 +204,6 @@ defmodule HNLive.Watcher do
         # mark_updated will be [] if previous_top_newest == [] because
         # the Enum.zip above will result in an empty list then
         mark_updated == [] -> top_newest
-        # at least one updated entry required
         Enum.any?(mark_updated, & &1.updated) -> mark_updated
         true -> []
       end
