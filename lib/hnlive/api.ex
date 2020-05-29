@@ -10,15 +10,26 @@ defmodule HNLive.Api do
   results or errors instead.
   """
 
+  defmodule Story do
+    @type t() :: %Story{
+            score: non_neg_integer(),
+            title: String.t(),
+            comments: non_neg_integer(),
+            creation_time: non_neg_integer(),
+            url: String.t()
+          }
+    defstruct score: 0, title: "", comments: 0, creation_time: 0, url: ""
+  end
+
   @doc """
   Gets the 500 newest stories from the offical Hacker News API (via the `/v0/newstories` endpoint).
 
-  Returns a map of story IDs to a story information map with the keys `score`, `title`, `comments`,
+  Returns a map of story IDs to a `Story` struct with the keys `score`, `title`, `comments`,
   `creation_time` and `url`, e.g.
 
   ```
   %{
-    23319901 => %{
+    23319901 => %Story{
       comments: 197,
       score: 551,
       title: "Supabase (YC S20) – An open source Firebase alternative",
@@ -32,10 +43,11 @@ defmodule HNLive.Api do
   If the story is an "Ask HN" or "Show HN" item, the `url` will point to the associated Hacker News
   comments thread. For regular stories, the `url` will point to the submitted story, as expected.
 
-  Please note that `comments` contains the number of comments currently associated with this story.
+  `comments` contains the number of comments currently associated with this story.
 
   If the function fails, an empty map `%{}` is returned.
   """
+  @spec get_newest_stories() :: %{optional(non_neg_integer()) => Story.t()}
   def get_newest_stories() do
     case get_new_story_ids() do
       {:ok, ids} ->
@@ -47,10 +59,11 @@ defmodule HNLive.Api do
   end
 
   @doc """
-  Gets recently changed items from the `/v0/updates` endpoint.any()
+  Gets recently changed items from the `/v0/updates` endpoint.
 
   Returns `{:ok, [IDs of changed items]}` or an `{:error, ...}` encountered during the function call.
   """
+  @spec get_updates() :: {:ok, [non_neg_integer()]} | {:error, any()}
   def get_updates() do
     with {:ok, json} <- get_and_decode("https://hacker-news.firebaseio.com/v0/updates.json"),
          {:ok, updates} <- Map.fetch(json, "items") do
@@ -61,13 +74,14 @@ defmodule HNLive.Api do
   @doc """
   Gets the stories corresponding to the given list of IDs.
 
-  Returns a map of story IDs to a story information map with the keys `score`, `title`, `comments`,
+  Returns a map of story IDs to a `Story` struct with the keys `score`, `title`, `comments`,
   `creation_time` and `url`, similar to `get_newest_stories/0`.
 
   The function deals with IDs which do not correspond to stories by simply ignoring the results.
 
   If the function fails or no stories could be retrieved for the given IDs, an empty map `%{}` is returned.
   """
+  @spec get_many_stories([non_neg_integer()]) :: %{optional(non_neg_integer()) => Story.t()}
   def get_many_stories(ids) do
     get_many_items(ids)
     |> Enum.flat_map(&parse_story/1)
@@ -87,7 +101,7 @@ defmodule HNLive.Api do
     [
       {
         id,
-        %{
+        %Story{
           score: score,
           title: title,
           comments: comments,

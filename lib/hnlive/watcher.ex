@@ -1,6 +1,6 @@
 defmodule HNLive.Watcher do
   use GenServer
-  alias HNLive.{Api, Presence}
+  alias HNLive.{Api, Api.Story, Presence}
   alias Phoenix.PubSub
 
   # time after which initial HN API call to get newest stories
@@ -15,16 +15,31 @@ defmodule HNLive.Watcher do
   # topic of PubSub channel used for broadcasting updates
   @pub_sub_topic "hackernews_watcher"
 
+  defmodule TopStory do
+    @type t() :: %TopStory{
+            id: non_neg_integer(),
+            score: non_neg_integer(),
+            title: String.t(),
+            comments: non_neg_integer(),
+            creation_time: String.t(),
+            url: String.t(),
+            updated: boolean()
+          }
+    defstruct id: 0, score: 0, title: "", comments: 0, url: "", creation_time: "", updated: false
+  end
+
   # Client
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
   end
 
+  @spec get_top_newest_stories(:score | :comments) :: [TopStory.t()]
   def get_top_newest_stories(sort_by \\ :score) do
     GenServer.call(__MODULE__, {:get_top_newest_stories, sort_by})
   end
 
+  @spec get_current_subscriber_count() :: non_neg_integer()
   def get_current_subscriber_count() do
     map_size(Presence.list(@pub_sub_topic))
   end
@@ -149,14 +164,13 @@ defmodule HNLive.Watcher do
   defp get_top_newest_and_changes(sort_by, stories, previous_top_newest) do
     top_newest =
       stories
-      |> Enum.map(fn {story_id, story} ->
-        %{
+      |> Enum.map(fn {story_id, %Story{} = story} ->
+        %TopStory{
           id: story_id,
           score: story.score,
           title: story.title,
           comments: story.comments,
-          url: story.url,
-          updated: false
+          url: story.url
         }
       end)
       |> Enum.sort_by(&Map.fetch!(&1, sort_by), :desc)
@@ -166,7 +180,7 @@ defmodule HNLive.Watcher do
 
     top_newest =
       Enum.map(top_newest, fn story ->
-        creation_time = get_in(stories, [story.id, :creation_time])
+        creation_time = stories[story.id].creation_time
         Map.put(story, :creation_time, humanize_time(current_time - creation_time))
       end)
 
@@ -188,7 +202,7 @@ defmodule HNLive.Watcher do
         # the Enum.zip above will result in an empty list then
         mark_updated == [] -> top_newest
         # at least one updated entry required
-        Enum.any?(mark_updated, &Map.fetch!(&1, :updated)) -> mark_updated
+        Enum.any?(mark_updated, & &1.updated) -> mark_updated
         true -> []
       end
 

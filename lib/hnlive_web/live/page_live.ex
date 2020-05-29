@@ -1,6 +1,6 @@
 defmodule HNLiveWeb.PageLive do
   use HNLiveWeb, :live_view
-  alias HNLive.Watcher
+  alias HNLive.{Watcher, Watcher.TopStory}
 
   @impl true
   def mount(_params, _session, socket) do
@@ -49,7 +49,7 @@ defmodule HNLiveWeb.PageLive do
       </div>
       </div>
       <%= if length(@stories) > 0 do %>
-      <%= for {%{
+      <%= for {%TopStory{
                   id: id,
                   score: score,
                   title: title,
@@ -86,7 +86,7 @@ defmodule HNLiveWeb.PageLive do
         {:update_top_newest, stories},
         socket
       ) do
-    stories = Map.fetch!(stories, socket.assigns.sort_by)
+    stories = stories[socket.assigns.sort_by]
 
     socket =
       if length(stories) > 0 do
