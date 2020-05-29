@@ -149,21 +149,13 @@ defmodule HNLive.Watcher do
   defp get_top_newest_and_changes(sort_by, stories, previous_top_newest) do
     top_newest =
       stories
-      |> Enum.map(fn {
-                       id,
-                       %{
-                         score: score,
-                         title: title,
-                         comments: comments,
-                         url: url
-                       }
-                     } ->
+      |> Enum.map(fn {story_id, story} ->
         %{
-          id: id,
-          score: score,
-          title: title,
-          comments: comments,
-          url: url,
+          id: story_id,
+          score: story.score,
+          title: story.title,
+          comments: story.comments,
+          url: story.url,
           updated: false
         }
       end)
@@ -182,12 +174,11 @@ defmodule HNLive.Watcher do
     # :updated in the story map
     mark_updated =
       Enum.zip(top_newest, previous_top_newest)
-      |> Enum.map(fn {%{id: new_id, score: new_score, comments: new_comments} = new,
-                      %{id: old_id, score: old_score, comments: old_comments}} ->
+      |> Enum.map(fn {new, old} ->
         Map.put(
           new,
           :updated,
-          new_id != old_id || new_score != old_score || new_comments != old_comments
+          new.id != old.id || new.score != old.score || new.comments != old.comments
         )
       end)
 
