@@ -25,9 +25,13 @@ How would you run this in production? Please [check the official Phoenix deploym
 
 In order to get this up and running on [Gigalixir](https://www.gigalixir.com/), I used the [official Gigalixir documentation](https://gigalixir.readthedocs.io/en/latest/index.html).
 
-## Some remarks on the the project structure and Elixir/Phoenix/LiveView features used
+## Some remarks on the project structure and Elixir/Phoenix/LiveView features used
 
-[`HNLive.Api`](lib/hnlive/api.ex)
+[`HNLive.Api`](lib/hnlive/api.ex) contains the required functionality for querying the [HackerNews API](https://github.com/HackerNews/API), in particular the `v0/newstories` and `v0/updates` endpoints. To retrieve many stories concurrently, we use `Task.async/Task.await` and rely on the `:max_connections` setting of the `hackney` pool used by `HTTPoison` to limit the number of concurrent queries in flight to 30 (this is set when starting the hackney pool as part of the supervision tree in `HNLive.Application`).
+
+[`HNLive.Watcher`](lib/hnlive/watcher.ex) is a [`GenServer`](https://hexdocs.pm/elixir/GenServer.html) providing updates via [`Phoenix.PubSub`](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) when the top stories change (and when the number of subscribers to the corresponding `PubSub` topic changes, via `SubscriberCountTracker` (which implements the [`Phoenix.Tracker`](https://hexdocs.pm/phoenix_pubsub/Phoenix.Tracker.html) behaviour) - this is used to display the numbers of current visitors in the associated LiveView). When the watcher starts, the 500 newest stories are initially retrieved using `HNLive.Api.get_newest_stories/0`. Afterwards, every 10 seconds updates are downloaded using `HNLive.Api.get_updates/0` and `HNLive.Api.get_many_stories/1` and merged with the previously retrieved stories. Only the 500 newest stories are considered (and kept in memory) when updating the top 10 stories by score and number of comments.  
+
+[`HNLiveWeb.PageLive`](lib/hnlive_web/live/page_live.ex) is the actual `LiveView` subscribed to the `HNLive.Watcher` (or better, the `PubSub` topic which the watcher broadcasts to), which renders the top stories and current visitor count whenever they are updated. It also allows switching between sorting by score and sorting by number of comments - this is implemented using [`Phoenix.LiveView.handle_params/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#module-handle_params-3).
 
 ## Additional notes
 
