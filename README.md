@@ -15,7 +15,7 @@ The motivation for building HNLive was twofold:
 To start hacking on HNLive:
 
   * Make sure that Erlang, Elixir and Node.JS are installed, see the [Phoenix installation instructions](https://hexdocs.pm/phoenix/installation.html) for a guide. HNLive does not require PostgreSQL.
-  * Clone the git repository `git clone https://github.com/gstipi/hnlive.git`
+  * Clone the git repository with `git clone https://github.com/gstipi/hnlive.git`
   * Setup the project with `mix setup`
   * Start Phoenix endpoint with `mix phx.server`
 
@@ -25,44 +25,34 @@ How would you run this in production? Please [check the official Phoenix deploym
 
 In order to get this up and running on [Gigalixir](https://www.gigalixir.com/), I used the [official Gigalixir documentation](https://gigalixir.readthedocs.io/en/latest/index.html).
 
-## Learn more
+## Some remarks on the the project structure and Elixir/Phoenix/LiveView features used
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+[`HNLive.Api`](api.ex)
 
-## How this was built
+## Additional notes
 
-`mix phx.new hnlive --module HNLive --live --no-ecto`
+Initial project created with the Phoenix generator: `mix phx.new hnlive --module HNLive --live --no-ecto`
 
-Confirm installation of dependencies.
-
-Update to latest Phoenix and LiveView versions in mix.exs:
+I also had to update to latest Phoenix and LiveView versions in `mix.exs`:
 
 ``` 
 {:phoenix, "~> 1.5.3"},
 {:phoenix_live_view, "~> 0.13.0"},
 ```
 
-Add HTTPoison dependency:
+The only additional dependency I needed was [HTTPoison](https://hexdocs.pm/httpoison/HTTPoison.html), which I also added in `mix.exs`:
 
 `{:httpoison, "~> 1.6"}`
-
-Run `mix deps.get`.
-
-`cd hnlive`
-
-`mix setup`
-
-`mix phx.server`
-
-Add `/.elixir_ls/` to .gitignore if using ElixirLS.
 
 To the supervision tree in `HNLive.Application`, add 
 
 ```
-# Hackney pool used for httpoison requests
+# Hackney pool used for HTTPoison requests
 :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30)
 ```
+
+Run `mix deps.get` to retrieve updated dependencies.
+
+Add `/.elixir_ls/` to .gitignore if using ElixirLS.
+
+
