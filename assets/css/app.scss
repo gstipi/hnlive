@@ -44,7 +44,7 @@ a:visited { color: $text-secondary-color; text-decoration:none; }
 .row { display: flex; flex-direction: row; margin-bottom: $spacer-height;}
 .rank { text-align: right; vertical-align: top; padding-right: 8px; min-width: 22px;}
 .info-col { display: flex; flex-direction: column; }
-.visitor-count {font-size: 7pt; text-align: center; margin-bottom: $spacer-height;}
+.footer-text {text-align: center; margin-bottom: $spacer-height;}
 
 @media only screen
 and (min-width : 100px)
@@ -52,5 +52,5 @@ and (max-width : 750px) {
   .page-container { width: 100%; }
   .page-header { font-size: 15px; flex-direction: column; }
   .rank, .title { font-size: 11pt; line-height: 14pt;  }
-  .subtext, .visitor-count { font-size: 9pt; }
+  .subtext{ font-size: 9pt; }
 }
