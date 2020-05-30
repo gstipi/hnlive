@@ -27,7 +27,7 @@ In order to get this up and running on [Gigalixir](https://www.gigalixir.com/), 
 
 ## Some remarks on the the project structure and Elixir/Phoenix/LiveView features used
 
-[`HNLive.Api`](api.ex)
+[`HNLive.Api`](lib/hnlive/api.ex)
 
 ## Additional notes
 
