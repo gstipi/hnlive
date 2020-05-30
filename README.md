@@ -30,7 +30,7 @@ In order to get this up and running on [Gigalixir](https://www.gigalixir.com/), 
 
 ### `HNLive.Api`
 
-[`HNLive.Api`](lib/hnlive/api.ex) contains the required functionality for querying the [HackerNews API](https://github.com/HackerNews/API), in particular the `v0/newstories` and `v0/updates` endpoints. To retrieve many stories concurrently, `Task.async/Task.await` is used. 
+[`HNLive.Api`](lib/hnlive/api.ex) contains the required functionality for querying the [HackerNews API](https://github.com/HackerNews/API), in particular the `v0/newstories` and `v0/updates` endpoints. To retrieve many stories concurrently, `Task.async/Task.await` are used. 
 
 I rely on the `:max_connections` setting of the `hackney` pool used by `HTTPoison` to limit the number of concurrent queries in flight to 30 (`:max_connections` is set when starting the hackney pool as part of the supervision tree in `HNLive.Application`).
 
@@ -43,13 +43,13 @@ When the watcher starts, the 500 newest stories are initially retrieved using `H
 
 Only the 500 newest stories are considered (and kept in memory) when updating the top 10 stories by score and number of comments.  
 
-The watcher also broadcasts updates when the number of subscribers to the corresponding `PubSub` topic changes, which is used to display the number of current visitors in the associated LiveView. The numer of subscribers is tracked by `SubscriberCountTracker`, which implements the [`Phoenix.Tracker`](https://hexdocs.pm/phoenix_pubsub/Phoenix.Tracker.html) behaviour. 
+The watcher also broadcasts updates when the number of subscribers to the corresponding `PubSub` topic changes, which is used to display the number of current visitors in the associated LiveView. The number of subscribers is tracked by `SubscriberCountTracker`, which implements the [`Phoenix.Tracker`](https://hexdocs.pm/phoenix_pubsub/Phoenix.Tracker.html) behaviour. 
 
 ### `HNLiveWeb.PageLive`
 
 [`HNLiveWeb.PageLive`](lib/hnlive_web/live/page_live.ex) is the actual LiveView, which renders the top stories and current visitor count whenever they are updated. To receive these updates, the LiveView subscribes to the `HNLive.Watcher` (or better, the `PubSub` topic the watcher broadcasts to).
 
-It also allows switching between sorting by score and sorting by number of comments - this is implemented using [`Phoenix.LiveView.handle_params/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#module-handle_params-3).
+It also allows switching between sorting the stories by score and sorting by number of comments - this is implemented using [`Phoenix.LiveView.handle_params/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#module-handle_params-3).
 
 The [`CSS`](assets/css/app.scss) used in the LiveView is a naive attempt to re-create the spirit of the original HackerNews layout, using a responsive Flexbox layout. 
 
@@ -64,7 +64,7 @@ I also had to update to latest Phoenix and LiveView versions in `mix.exs`:
 {:phoenix_live_view, "~> 0.13.0"},
 ```
 
-The only additional dependency I needed was [HTTPoison](https://hexdocs.pm/httpoison/HTTPoison.html), which I also added in `mix.exs`:
+The only additional dependency I included was [HTTPoison](https://hexdocs.pm/httpoison/HTTPoison.html), which I also added in `mix.exs`:
 
 `{:httpoison, "~> 1.6"}`
 

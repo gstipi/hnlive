@@ -17,7 +17,7 @@ $animation-highlight-color: #59E817;
   to { background-color: transparent; }
 }
 
-body { @include font-base; width: 100%; -webkit-text-size-adjust: none; background-color: $body-color; }
+body { @include font-base; width: 100%; -webkit-text-size-adjust: none; background-color: $body-color; padding: 0px; margin: 0px; }
 .subtext { font-size: 7pt; }
 a:link    { color: $text-primary-color; text-decoration:none; }
 a:visited { color: $text-secondary-color; text-decoration:none; }
@@ -49,7 +49,6 @@ a:visited { color: $text-secondary-color; text-decoration:none; }
 @media only screen
 and (min-width : 100px)
 and (max-width : 750px) {
-  body { padding: 0px; margin: 0px; }
   .page-container { width: 100%; }
   .page-header { font-size: 15px; flex-direction: column; }
   .rank, .title { font-size: 11pt; line-height: 14pt;  }
