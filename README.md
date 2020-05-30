@@ -2,7 +2,7 @@
 
 HNLive is a small Elixir/Phoenix/LiveView web app showing the top 10 (by score or number of comments) newest [HackerNews](https://news.ycombinator.com/) stories in "real time" (i.e. as quickly as updates become available via the [HackerNews API](https://github.com/HackerNews/API)).
 
-The app should be running on https://hntop10.gigalixirapp.com - please note that this is running on the free tier with limited memory and resources.
+You should find the app running on https://hntop10.gigalixirapp.com - please note that this is running on the free tier with limited memory and resources.
 
 ![A screenshot of the HNLive app, showing the top 10 newest HN posts sorted by score](screenshot1.png)
 
@@ -10,7 +10,7 @@ As seen in the screenshot above, updated rows (i.e. position, score or number of
 
 The motivation for building HNLive was twofold:
   * I had read and heard many good things about [Elixir](https://elixir-lang.org/), [Phoenix](https://www.phoenixframework.org/) and [LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html), and after watching Chris McCord`s demo ["Build a real-time Twitter clone in 15 minutes with LiveView and Phoenix 1.5"](https://www.youtube.com/watch?v=MZvmYaFkNJI), I finally said to myself: "That looks awesome, time to learn Elixir and Phoenix!" HNLive is the app I built over the last couple of days while on this learning journey, so don't expect idiomatic or bug-free code - feel free to point out potential improvements!
-  * I love browsing [HackerNews](https://news.ycombinator.com/), but the selection of stories on the front page, the ["newest" page](https://news.ycombinator.com/newest) and the ["best" page](https://news.ycombinator.com/best) is not ideal if you want to see at a glance which new stories (say, submitted over the course of the last 12 hours) have received the most upvotes or are discussed particularly controversially (as judged by the number of comments). HNLive attempts to address this using data from the [HackerNews API](https://github.com/HackerNews/API) to provide the top 10 submissions, sorted by score or number of comments, taking into account only the last 500 submissions. I also wanted to see updates to the top 10 (and scores and number of comments) in real time, which was made easy by using LiveView. 
+  * I love browsing [HackerNews](https://news.ycombinator.com/), but for me the selection of stories on the front page, the ["newest" page](https://news.ycombinator.com/newest) and the ["best" page](https://news.ycombinator.com/best) is not ideal if I want to see at a glance which new stories (say, submitted over the course of the last 12 hours) have received the most upvotes or are discussed particularly controversially (as judged by the number of comments). HNLive attempts to address this using data from the [HackerNews API](https://github.com/HackerNews/API) to provide the top 10 submissions, sorted by score or number of comments, taking into account only the last 500 submissions. I also wanted to see updates to the top 10 (and scores and number of comments) in real time, which was made easy by using LiveView. 
 
 To start hacking on HNLive:
 
@@ -30,22 +30,24 @@ In order to get this up and running on [Gigalixir](https://www.gigalixir.com/), 
 
 ### `HNLive.Api`
 
-[`HNLive.Api`](lib/hnlive/api.ex) contains the required functionality for querying the [HackerNews API](https://github.com/HackerNews/API), in particular the `v0/newstories` and `v0/updates` endpoints. To retrieve many stories concurrently, we use `Task.async/Task.await`. 
+[`HNLive.Api`](lib/hnlive/api.ex) contains the required functionality for querying the [HackerNews API](https://github.com/HackerNews/API), in particular the `v0/newstories` and `v0/updates` endpoints. To retrieve many stories concurrently, `Task.async/Task.await` is used. 
 
-We rely on the `:max_connections` setting of the `hackney` pool used by `HTTPoison` to limit the number of concurrent queries in flight to 30 (`:max_connections` is set when starting the hackney pool as part of the supervision tree in `HNLive.Application`).
+I rely on the `:max_connections` setting of the `hackney` pool used by `HTTPoison` to limit the number of concurrent queries in flight to 30 (`:max_connections` is set when starting the hackney pool as part of the supervision tree in `HNLive.Application`).
 
 
 ### `HNLive.Watcher`
 
-[`HNLive.Watcher`](lib/hnlive/watcher.ex) is a [`GenServer`](https://hexdocs.pm/elixir/GenServer.html), providing updates via [`Phoenix.PubSub`](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) when the top stories change (and when the number of subscribers to the corresponding `PubSub` topic changes, via `SubscriberCountTracker`, which implements the [`Phoenix.Tracker`](https://hexdocs.pm/phoenix_pubsub/Phoenix.Tracker.html) behaviour - this is used to display the numbers of current visitors in the associated LiveView). 
+[`HNLive.Watcher`](lib/hnlive/watcher.ex) is a [`GenServer`](https://hexdocs.pm/elixir/GenServer.html), providing updates via [`Phoenix.PubSub`](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) when the top stories change. 
 
 When the watcher starts, the 500 newest stories are initially retrieved using `HNLive.Api.get_newest_stories/0`. Afterwards, every 10 seconds updates are downloaded using `HNLive.Api.get_updates/0` and `HNLive.Api.get_many_stories/1`. The updated stories are then merged with the previously retrieved stories. 
 
 Only the 500 newest stories are considered (and kept in memory) when updating the top 10 stories by score and number of comments.  
 
+The watcher also broadcasts updates when the number of subscribers to the corresponding `PubSub` topic changes, which is used to display the number of current visitors in the associated LiveView. The numer of subscribers is tracked by `SubscriberCountTracker`, which implements the [`Phoenix.Tracker`](https://hexdocs.pm/phoenix_pubsub/Phoenix.Tracker.html) behaviour. 
+
 ### `HNLiveWeb.PageLive`
 
-[`HNLiveWeb.PageLive`](lib/hnlive_web/live/page_live.ex) is the actual `LiveView` subscribed to the `HNLive.Watcher` (or better, the `PubSub` topic which the watcher broadcasts to), which renders the top stories and current visitor count whenever they are updated. 
+[`HNLiveWeb.PageLive`](lib/hnlive_web/live/page_live.ex) is the actual LiveView, which renders the top stories and current visitor count whenever they are updated. To receive these updates, the LiveView subscribes to the `HNLive.Watcher` (or better, the `PubSub` topic the watcher broadcasts to).
 
 It also allows switching between sorting by score and sorting by number of comments - this is implemented using [`Phoenix.LiveView.handle_params/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#module-handle_params-3).
 
