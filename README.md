@@ -12,14 +12,18 @@ The motivation for building HNLive was twofold:
   * I had read and heard many good things about [Elixir](https://elixir-lang.org/), [Phoenix](https://www.phoenixframework.org/) and [LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html), and after watching Chris McCord`s demo ["Build a real-time Twitter clone in 15 minutes with LiveView and Phoenix 1.5"](https://www.youtube.com/watch?v=MZvmYaFkNJI), I finally said to myself: "That looks awesome, time to learn Elixir and Phoenix!" HNLive is the app I built over the last couple of days while on this learning journey, so don't expect idiomatic or bug-free code - feel free to point out potential improvements!
   * I love browsing [HackerNews](https://news.ycombinator.com/), but the selection of stories on the front page, the ["newest" page](https://news.ycombinator.com/newest) and the ["best" page](https://news.ycombinator.com/best) is not ideal if you want to see at a glance which new stories (say, submitted over the course of the last 12 hours) have received the most upvotes or are discussed particularly controversially (as judged by the number of comments). HNLive attempts to address this using data from the [HackerNews API](https://github.com/HackerNews/API) to provide the top 10 submissions, sorted by score or number of comments, taking into account only the last 500 submissions. I also wanted to see updates to the top 10 (and scores and number of comments) in real time, which was made easy by using LiveView. 
 
-To start your Phoenix server:
+To start hacking on HNLive:
 
+  * Make sure that Erlang, Elixir and Node.JS are installed, see the [Phoenix installation instructions](https://hexdocs.pm/phoenix/installation.html) for a guide. HNLive does not require PostgreSQL.
+  * Clone the git repository `git clone https://github.com/gstipi/hnlive.git`
   * Setup the project with `mix setup`
   * Start Phoenix endpoint with `mix phx.server`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check the official Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+How would you run this in production? Please [check the official Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+
+In order to get this up and running on [Gigalixir](https://www.gigalixir.com/), I used the [official Gigalixir documentation](https://gigalixir.readthedocs.io/en/latest/index.html).
 
 ## Learn more
 
