@@ -16,9 +16,7 @@ defmodule HNLive.Application do
       # Hackney pool used for httpoison requests
       :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30),
       # Start HackerNews watcher
-      HNLive.Watcher,
-      # Start Presence Tracker
-      HNLive.Presence
+      HNLive.Watcher
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

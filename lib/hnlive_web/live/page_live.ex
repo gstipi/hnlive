@@ -4,14 +4,12 @@ defmodule HNLiveWeb.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    current_visitor_count = Watcher.get_current_subscriber_count()
-
     if connected?(socket), do: Watcher.subscribe(socket.id)
 
     socket =
       assign(socket,
         stories: Watcher.get_top_newest_stories(:score),
-        current_visitor_count: current_visitor_count,
+        current_visitor_count: 0,
         sort_by: :score
       )
 
@@ -99,13 +97,8 @@ defmodule HNLiveWeb.PageLive do
   end
 
   @impl true
-  def handle_info(
-        %{event: "presence_diff", payload: %{joins: joins, leaves: leaves}},
-        %{assigns: %{current_visitor_count: count}} = socket
-      ) do
-    current_visitor_count = count + map_size(joins) - map_size(leaves)
-
-    {:noreply, assign(socket, :current_visitor_count, current_visitor_count)}
+  def handle_info({:subscriber_count, subscriber_count}, socket) do
+    {:noreply, assign(socket, :current_visitor_count, subscriber_count)}
   end
 
   defp class_update_animation(show), do: if(show, do: "update-animation", else: "")

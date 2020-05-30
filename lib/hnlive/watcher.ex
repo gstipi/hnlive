@@ -1,6 +1,6 @@
 defmodule HNLive.Watcher do
   use GenServer
-  alias HNLive.{Api, Api.Story, Presence}
+  alias HNLive.{Api, Api.Story}
   alias Phoenix.PubSub
 
   # time after which initial HN API call to get newest stories
@@ -11,9 +11,40 @@ defmodule HNLive.Watcher do
   # number of top stories returned by get_top_newest_stories
   @top_story_count 10
   # name of PubSub service used for broadcasting updates
-  @pub_sub HNLive.PubSub
+  @pubsub_server HNLive.PubSub
   # topic of PubSub channel used for broadcasting updates
-  @pub_sub_topic "hackernews_watcher"
+  @pubsub_topic "hackernews_watcher"
+
+  defmodule SubscriberCountTracker do
+    use Phoenix.Tracker
+
+    def start_link(opts) do
+      opts = Keyword.merge([name: __MODULE__], opts)
+      Phoenix.Tracker.start_link(__MODULE__, opts, opts)
+    end
+
+    @impl true
+    def init(opts) do
+      pubsub_server = Keyword.fetch!(opts, :pubsub_server)
+      pubsub_topic = Keyword.fetch!(opts, :pubsub_topic)
+      {:ok, %{pubsub_server: pubsub_server, pubsub_topic: pubsub_topic, subscriber_count: 0}}
+    end
+
+    @impl true
+    def handle_diff(
+          diff,
+          %{
+            pubsub_server: pubsub_server,
+            pubsub_topic: pubsub_topic,
+            subscriber_count: subscriber_count
+          } = state
+        ) do
+      {joins, leaves} = Map.get(diff, pubsub_topic, {[], []})
+      subscriber_count = subscriber_count + length(joins) - length(leaves)
+      PubSub.broadcast!(pubsub_server, pubsub_topic, {:subscriber_count, subscriber_count})
+      {:ok, %{state | subscriber_count: subscriber_count}}
+    end
+  end
 
   defmodule TopStory do
     @type t() :: %TopStory{
@@ -32,6 +63,7 @@ defmodule HNLive.Watcher do
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
+    SubscriberCountTracker.start_link(pubsub_server: @pubsub_server, pubsub_topic: @pubsub_topic)
   end
 
   @spec get_top_newest_stories(:score | :comments) :: [TopStory.t()]
@@ -39,14 +71,11 @@ defmodule HNLive.Watcher do
     GenServer.call(__MODULE__, {:get_top_newest_stories, sort_by})
   end
 
-  @spec get_current_subscriber_count() :: non_neg_integer()
-  def get_current_subscriber_count() do
-    map_size(Presence.list(@pub_sub_topic))
-  end
-
   def subscribe(socket_id) do
-    :ok = PubSub.subscribe(@pub_sub, @pub_sub_topic)
-    {:ok, _} = Presence.track(self(), @pub_sub_topic, socket_id, %{})
+    :ok = PubSub.subscribe(@pubsub_server, @pubsub_topic)
+
+    {:ok, _} =
+      Phoenix.Tracker.track(SubscriberCountTracker, self(), @pubsub_topic, socket_id, %{})
   end
 
   # Server
@@ -156,8 +185,8 @@ defmodule HNLive.Watcher do
     if length(changes_by_score) > 0 || length(changes_by_comments) > 0,
       do:
         PubSub.broadcast!(
-          @pub_sub,
-          @pub_sub_topic,
+          @pubsub_server,
+          @pubsub_topic,
           {:update_top_newest, %{score: changes_by_score, comments: changes_by_comments}}
         )
 
