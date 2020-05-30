@@ -1,5 +1,15 @@
 # HNLive
 
+HNLive is a small Elixir/Phoenix/LiveView web app showing the top 10 (by score or number of comments) newest HackerNews stories in "real time" (i.e. as quickly as updates become available via the [HackerNews API](https://github.com/HackerNews/API)).
+
+The app should be running on https://hntop10.gigalixirapp.com - please note that this is running on the free tier with limited memory and resources.
+
+![A screenshot of the HNLive app, showing the top 10 newest HN posts sorted by score](screenshot1.png)
+
+The motivation for building HNLive was twofold:
+  * I had read and heard many good things about [Elixir](https://elixir-lang.org/), [Phoenix](https://www.phoenixframework.org/) and [LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html) and after watching Chris McCord`s demo ["Build a real-time Twitter clone in 15 minutes with LiveView and Phoenix 1.5"](https://www.youtube.com/watch?v=MZvmYaFkNJI) I finally said to myself: "That looks awesome, time to learn Elixir and Phoenix!" HNLive is the app I built over the last couple of days while on this learning journey, so don't expect idomatic or bug-free code - feel free to point out potential improvements!
+  * I love browsing [HackerNews](https://news.ycombinator.com/), but the selection of stories on the front page, the ["newest" page](https://news.ycombinator.com/newest) and the ["best" page](https://news.ycombinator.com/best) is not ideal if you want to see at a glance which new stories (let's say, submitted over the course of the last 12 hours) have received the most upvotes or are discussed particularly controversely (as judged by the number of comments). HNLive addresses this by using data from the [HackerNews API](https://github.com/HackerNews/API) to provide the top 10 submissions sorted by score or number of comments, taking into account only the last 500 submissions. I also wanted to see updates to the top 10 (and scores and number of comments) in real time.
+
 To start your Phoenix server:
 
   * Setup the project with `mix setup`
@@ -7,7 +17,7 @@ To start your Phoenix server:
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Ready to run in production? Please [check the official Phoenix deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
 ## Learn more
 
@@ -50,12 +60,3 @@ To the supervision tree in `HNLive.Application`, add
 # Hackney pool used for httpoison requests
 :hackney_pool.child_spec(:httpoison_pool, timeout: 15000, max_connections: 30)
 ```
-
-DONE: add Phoenix.Presence to see how many people are currently on the page!
-
-remote: For troubleshooting, See:      http://gigalixir.readthedocs.io/en/latest/main.html#troubleshooting
-remote: For help, contact:             help@gigalixir.com
-remote: Try hitting your app with:     curl https://hntop10.gigalixirapp.com/
-remote: Check your app logs with:      gigalixir logs -a hntop10
-remote: Check deploy status with:      gigalixir ps -a hntop10
-remote: Updated property [core/account].
