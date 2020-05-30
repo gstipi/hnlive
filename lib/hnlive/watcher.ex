@@ -1,4 +1,24 @@
 defmodule HNLive.Watcher do
+  @moduledoc """
+  `HNLive.Watcher` is a long-running `GenServer`, which should be started as
+  part of the application supervision tree.
+
+  `HNLive.Watcher` provides updates via `Phoenix.PubSub`
+  when the top stories change. Subscribe to the updates via `subscribe/1`.
+
+  These updates are broadcast as
+  `{:update_top_newest, %{score: [%TopStory{}] , comments: [%TopStory{}]}}`
+
+  The `score` and `comments` entries are sorted by score, and number of comments,
+  respectively. Please note that either of the entries may be `[]` which indicates
+  that no updates were available for this particular entry.
+
+  The watcher also broadcasts updates when the number of subscribers to the corresponding
+  PubSub topic changes.
+
+  These updates are broadcast as `{:subscriber_count, subscriber_count}`, where
+  `subscriber_count` is a non-negative integer.
+  """
   use GenServer
   alias HNLive.{Api, Api.Story}
   alias Phoenix.PubSub
@@ -16,6 +36,12 @@ defmodule HNLive.Watcher do
   @pubsub_topic "hackernews_watcher"
 
   defmodule SubscriberCountTracker do
+    @moduledoc """
+    Originally used `Phoenix.Presence` to track the number of subscribers, which meant recalculating
+    this individually in each connected LiveView (since "presence_diff" events are sent to the LiveView).
+    Using a simple `Phoenix.Tracker`, we keep track of this information centrally in the Watcher and
+    only broadcast the resulting subscriber count.
+    """
     use Phoenix.Tracker
 
     def start_link(opts) do
@@ -66,11 +92,18 @@ defmodule HNLive.Watcher do
     SubscriberCountTracker.start_link(pubsub_server: @pubsub_server, pubsub_topic: @pubsub_topic)
   end
 
+  @doc """
+  Returns the top (sorted by `:score` of number of `:comments`) newest stories.
+  """
   @spec get_top_newest_stories(:score | :comments) :: [TopStory.t()]
   def get_top_newest_stories(sort_by \\ :score) do
     GenServer.call(__MODULE__, {:get_top_newest_stories, sort_by})
   end
 
+  @doc """
+  Subscribes to notifications when top stories are updated or subscriber count changes,
+  see module documentation for event format. Expects a LiveView socket ID as argument.
+  """
   def subscribe(socket_id) do
     :ok = PubSub.subscribe(@pubsub_server, @pubsub_topic)
 
@@ -98,6 +131,9 @@ defmodule HNLive.Watcher do
 
   @impl true
   def handle_info({:init, stories}, state) do
+    # When the watcher starts, the 500 newest stories are initially retrieved using
+    # `HNLive.Api.get_newest_stories/0`. We handle the result here.
+
     if map_size(stories) == 0, do: run_init(@retry_init_after)
 
     {:noreply,
@@ -113,6 +149,8 @@ defmodule HNLive.Watcher do
         {:get_updated_ids, updated_ids},
         %{stories: stories, last_updated_ids: last_updated_ids} = state
       ) do
+    # Every 10 seconds updates are downloaded
+    # using `HNLive.Api.get_updates/0`. We handle the result here.
     new_state =
       case updated_ids do
         # same ids retrieved as last time around? nothing to be done
@@ -143,9 +181,13 @@ defmodule HNLive.Watcher do
         {:updates, updated_stories},
         %{stories: stories, top_newest: top_newest} = state
       ) do
+    # Updated stories were downloaded using `HNLive.Api.get_many_stories/1.`
+    # The updated stories are now merged with the previously retrieved stories.
     stories =
       Map.merge(stories, updated_stories)
       |> Enum.sort_by(&elem(&1, 0), :desc)
+      # Only the 500 newest stories are considered (and kept in memory) when updating
+      # the top 10 stories by score and number of comments.
       |> Enum.take(500)
       |> Enum.into(%{})
 
@@ -182,6 +224,7 @@ defmodule HNLive.Watcher do
         &get_top_newest_and_changes(&1, stories, Map.get(previous_top_newest, &1, []))
       )
 
+    # only broadcast updates if any changes were found
     if length(changes_by_score) > 0 || length(changes_by_comments) > 0,
       do:
         PubSub.broadcast!(
@@ -210,13 +253,15 @@ defmodule HNLive.Watcher do
 
     current_time = DateTime.utc_now() |> DateTime.to_unix()
 
+    # convert the time elapsed since creation of the story into
+    # a human-readable string
     top_newest =
       Enum.map(top_newest, fn story ->
         creation_time = stories[story.id].creation_time
         Map.put(story, :creation_time, humanize_time(current_time - creation_time))
       end)
 
-    # we compare new and previous top stories and mark changes by setting
+    # compare new and previous top stories and mark changes by setting
     # :updated in the story map
     mark_updated =
       Enum.zip(top_newest, previous_top_newest)
