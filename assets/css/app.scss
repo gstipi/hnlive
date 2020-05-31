@@ -1,56 +1,128 @@
 /* This file is for your main application css. */
 @import "../node_modules/nprogress/nprogress.css";
 
-$spacer-height: 5px;
-$body-color: #333a4a;
-$primary-color: #4a3226;
-$background-color:#1F2430;
-$text-primary-color:#fafafa;
-$text-secondary-color: #8c96ac;
-$animation-highlight-color: #59E817;
+$spacer-height: 15px;
+$body-color: #ffffff;
+$primary-color: #ff6a00;
+$background-color: #ffffff;
+$text-primary-color: #292929;
+$text-secondary-color: #444444;
+$animation-highlight-color: #fcdac3;
 
-@mixin font-base { font-family:Verdana, Geneva, sans-serif; font-size:10pt; color: $text-secondary-color; }
-
-.update-animation { animation-duration: 3s; animation-name: highlight;}
-@keyframes highlight {
-  from { background-color: $animation-highlight-color; }
-  to { background-color: transparent; }
+@mixin font-base {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 12pt;
+  font-weight: 300;
+  color: $text-secondary-color;
 }
 
-body { @include font-base; width: 100%; -webkit-text-size-adjust: none; background-color: $body-color; padding: 0px; margin: 0px; }
-.subtext { font-size: 7pt; }
-a:link    { color: $text-primary-color; text-decoration:none; }
-a:visited { color: $text-secondary-color; text-decoration:none; }
-.subtext a:link, .subtext a:visited { color:$text-secondary-color; }
-.subtext a:hover { text-decoration:underline; }
-.page-container { 
-  display: flex; 
-  flex-direction: column; 
-  width: 85%; 
-  margin-left: auto; 
-  margin-right: auto; 
-  background-color:$background-color; 
+.update-animation {
+  animation-duration: 3s;
+  animation-name: highlight;
+}
+@keyframes highlight {
+  from {
+    background-color: $animation-highlight-color;
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+body {
+  @include font-base;
+  width: 100%;
+  -webkit-text-size-adjust: none;
+  background-color: $body-color;
+  padding: 0px;
+  margin: 0px;
+}
+.subtext {
+  font-size: 7pt;
+}
+a:link {
+  color: $text-primary-color;
+  text-decoration: none;
+}
+a:visited {
+  color: $text-secondary-color;
+  text-decoration: none;
+}
+.subtext a:link,
+.subtext a:visited {
+  color: $text-secondary-color;
+}
+.subtext a:hover {
+  text-decoration: underline;
+}
+.page-container {
+  display: flex;
+  flex-direction: column;
+  width: 85%;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: $background-color;
 }
 .page-header {
   display: flex;
-  flex-direction: row; 
-  padding: 2px 23px; 
-  margin-bottom: $spacer-height; 
-  color: $text-primary-color; 
+  flex-direction: row;
+  align-items: baseline;
+  padding: 22px 23px;
+  font-size: 13px;
+  line-height: 16px;
+  margin-bottom: $spacer-height;
+  color: $text-primary-color;
   background-color: $primary-color;
 }
-.page-title { font-weight: bold; margin-right: 10px;}
-.page-footer {height:2px; background-color: $primary-color; }
-.row { display: flex; flex-direction: row; margin-bottom: $spacer-height;}
-.rank { text-align: right; vertical-align: top; padding-right: 8px; min-width: 22px;}
-.info-col { display: flex; flex-direction: column; }
-.footer-text {text-align: center; margin-bottom: $spacer-height;}
+.page-title {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-right: 10px;
+  font-size: 18px;
+}
 
-@media only screen
-and (min-width : 100px)
-and (max-width : 750px) {
-  .page-container { width: 100%; }
-  .page-header { font-size: 15px; flex-direction: column; }
-  .rank, .title { font-size: 11pt; line-height: 14pt;  }
-  .subtext{ font-size: 9pt; }
+.page-footer {
+  height: 2px;
+  margin-top: $spacer-height;
+  background-color: $primary-color;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  // margin-bottom: $spacer-height;
+  padding: $spacer-height/2 0;
+}
+.rank {
+  text-align: right;
+  vertical-align: top;
+  padding-right: 8px;
+  min-width: 22px;
+}
+.info-col {
+  display: flex;
+  flex-direction: column;
+}
+.footer-text {
+  text-align: center;
+  margin-top: $spacer-height * 2;
+}
+
+@media only screen and (min-width: 100px) and (max-width: 750px) {
+  .page-container {
+    width: 100%;
+  }
+  .page-header {
+    font-size: 15px;
+    flex-direction: column;
+  }
+  .rank,
+  .title {
+    font-size: 11pt;
+    line-height: 14pt;
+  }
+  .subtext {
+    font-size: 9pt;
+  }
 }
