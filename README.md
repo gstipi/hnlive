@@ -6,7 +6,7 @@ You should find the app running on https://hntop10.gigalixirapp.com - please not
 
 ![A screenshot of the HNLive app, showing the top 10 newest HN posts sorted by score](screenshot1.png)
 
-As seen in the screenshot above, updated rows (i.e. position, score or number of comments has changed) are briefly highlighted using a green background. The app uses a dark theme inspired by a [discussion on HackerNews](https://news.ycombinator.com/item?id=23197966). 
+As seen in the screenshot above, updated rows (i.e. position, score or number of comments has changed) are briefly highlighted using a light orange background. The theme currently used by the app was kindly provided by [josefrichter](https://github.com/josefrichter).
 
 The motivation for building HNLive was twofold:
   * I had read and heard many good things about [Elixir](https://elixir-lang.org/), [Phoenix](https://www.phoenixframework.org/) and [LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html), and after watching Chris McCord`s demo ["Build a real-time Twitter clone in 15 minutes with LiveView and Phoenix 1.5"](https://www.youtube.com/watch?v=MZvmYaFkNJI), I finally said to myself: "That looks awesome, time to learn Elixir and Phoenix!" HNLive is the app I built over the last couple of days while on this learning journey, so don't expect idiomatic or bug-free code - feel free to point out potential improvements!
