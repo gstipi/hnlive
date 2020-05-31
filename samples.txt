@@ -1,7 +1,35 @@
-Dear Editor,
+ust over a year ago we woke up to another business day here in Park City, Utah, and like most days that starts with us going over our Google Analytics. Most days are almost identical in our numbers, so when we saw a pretty significant dip our hearts dropped a bit. Like anyone tuned into the SEO world, we quickly rushed to check the search engine forecast tools like MozCast and Algoroo to see what was going on. 
 
-     I realize that Darcie-bashing is a regular fixture of your letters page, but this time she has really excelled herself. Can she please make up her mind if Red River is "dried up ... as empty as George W.'s promises" ["One Night on Red River," Music, Nov. 5, 2004] or if it is "rich [and] alive" ["99 Bands," Music, July 8]?
+We've been in this business a long time to know that your Google traffic can be impacted at any time, but for the most part we have been consistently growing quarter after quarter. Not seeing any major updates in the news, nor any penalties or odd patterns in Google Search Console so it took us a bit to figure out what was going on. Next on the list was to do a Google search for our own website name and while we came up organically, we noticed something odd with our "business listing" on the righthand side.
 
-     Not only were her "reviews" slapdash and cliché, many of the bands she listed had simultaneous sets. From this I am forced to conclude, her weird use of doublespeak notwithstanding, she either posseses the power of teleportation or didn't really take the time to watch more than 30 seconds of each band.
+ 
 
-     We have come to expect this level of hackery from national publications, but from a paper that prides itself on being part of the solution this kind of fluff not only fails to give credit to the bands in Austin that deserve it most, her article ends up looking like an archived gig list, albeit without the venue addresses. Once again, Darcie Stevens proves that the Austin music scene thrives in spite of the Chronicle and not because of it.
+ 
+
+For starters, our listing wasn't there at all even though when we were logged into our Google Business account I was being shown my listing was now unverified and was marked as a "Duplicate". With not penalties being alerted in our accounts, we were truly stumped for over a week as to what happened. We immediately got on the phone with Ryan Clark over at Luxury Branded who helps with our SEO and PR from time to time to see what he thought. 
+
+Since he had in previous years left us a review for doing business for nearly a decade, he logged into his account and went off to find his review for us under someone else's Google Business listing. Then we took a look and low and behold, other listings mentioning me (Ben) were under the profile of another agent within Summit Sotheby's  here in Utah.
+
+ 
+
+This was rather unfortunate for us as we've worked for so long getting honest reviews and climbing to the top here in Park City. We have to make it 100% clear that the other agent had no part in what happened and seemed to somehow get our accounts merged with hers when she signed up. She is also an agent with Summit Sotheby's and after some time scratching our heads, we figured it was because we're all in the same office location. 
+
+This is not an unusual thing, and Google even has guidelines on how to manage profiles who share the same office. There are plenty of other brokers using this place and up until this point no one has had an issue like this. Since Google offers no official support, we have to rely on their webmaster support forum which is comprised entirely of volunteers and not actual Google employees. 
+
+ 
+Google Offers No Help 
+
+We made our first Webmaster Help Central post here in hopes someone could help is with a pretty serious issue, but sadly nobody who actual knows anything offered a response of value. Responses did not lead us anywhere after waiting a couple weeks, so being Google Adwords users we called a Google Rep there in hopes they could push the issue to someone who actually worked in the company.
+
+This is where our journey over over a year now has taken us a down a path of little hope, no real responses and many more failed attempts to get help through their webmaster forum, phone calls to support, etc.
+
+We've had seven phone inquiries which end up being routed to an external support company. Every conversation went the same way with the tech support not understanding the actual issue of the merged accounts. The only solution they wanted to pursue was for me to verify my new business that was created and not give mine back, and that is not acceptable for us as we had years of reviews and always ranked very high in the Map Pack.
+
+If you've worked to get reviews the right way before you know what a struggle that is and we cannot ask old clients to do a new one. It's hard enough to get a minute in with a UHNW client, so this just added to the flurry of frustration we felt.
+Going Public In Hopes Of Getting Help 
+
+So at this point we've decided to write about it more publicly in hopes of getting the attention of someone at Google who can help us out with this unique and annoying situation. We'll be also seeing what the SEO community thinks and if they've had this experience before, we certainly couldn't find anyone else with this issue searching around on Reddit, Facebook groups and other SEO forums. 
+
+While we're sad we're losing out on some business, we would like to see that this doesn't happen to anyone else in the future because we know how precious those reviews can be to businesses of all sizes. We would love to hear from other business owners and the SEO community at large so please drop a comment below, send us a DM on Instagram or connect with me on LinkedIn to give us your thoughts.
+
+Even better if someone at Google might see this in passing if we make enough noise. 
