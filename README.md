@@ -4,7 +4,7 @@ HNLive is a small Elixir/Phoenix/LiveView web app showing the top 10 (by score o
 
 You should find the app running on https://hntop10.gigalixirapp.com - please note that this is running on the free tier with limited memory and resources.
 
-![A screenshot of the HNLive app, showing the top 10 newest HN posts sorted by score](screenshot1.png)
+![A screenshot of the HNLive app, showing the top 10 newest HN posts sorted by score](screenshot2.png)
 
 As seen in the screenshot above, updated rows (i.e. position, score or number of comments has changed) are briefly highlighted using a light orange background. The theme currently used by the app was kindly provided by [josefrichter](https://github.com/josefrichter).
 
