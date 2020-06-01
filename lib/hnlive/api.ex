@@ -128,7 +128,7 @@ defmodule HNLive.Api do
 
   defp get_many_items(ids) do
     Enum.map(ids, &Task.async(fn -> get_item(&1) end))
-    |> Enum.map(&Task.await/1)
+    |> Enum.map(&Task.await(&1, :infinity))
     |> Enum.flat_map(fn item ->
       case item do
         {:ok, item} -> [item]

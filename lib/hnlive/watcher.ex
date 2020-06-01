@@ -89,7 +89,6 @@ defmodule HNLive.Watcher do
 
   def start_link(state) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
-    SubscriberCountTracker.start_link(pubsub_server: @pubsub_server, pubsub_topic: @pubsub_topic)
   end
 
   @doc """
@@ -115,8 +114,8 @@ defmodule HNLive.Watcher do
 
   @impl true
   def init(_) do
-    run_init()
-    run_get_updated_ids()
+    SubscriberCountTracker.start_link(pubsub_server: @pubsub_server, pubsub_topic: @pubsub_topic)
+    send(self(), :initial_api_calls)
     {:ok, %{stories: %{}, last_updated_ids: [], top_newest: %{}}}
   end
 
@@ -127,6 +126,13 @@ defmodule HNLive.Watcher do
         %{top_newest: top_newest} = state
       ) do
     {:reply, Map.get(top_newest, sort_by, []), state}
+  end
+
+  @impl true
+  def handle_info(:initial_api_calls, state) do
+    run_init()
+    run_get_updated_ids()
+    {:noreply, state}
   end
 
   @impl true
