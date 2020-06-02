@@ -1,8 +1,7 @@
 defmodule HNLive.Sentiment do
-  def run() do
+  def run(sample) do
     valence_map = File.read!("afinn-165.json") |> Jason.decode!()
     word_list = Map.keys(valence_map)
-    sample = File.read!("samples.txt")
 
     {positive, neutral, negative, score} =
       :binary.matches(sample, word_list)

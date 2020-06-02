@@ -16,9 +16,19 @@ defmodule HNLive.Api do
             title: String.t(),
             comments: non_neg_integer(),
             creation_time: non_neg_integer(),
-            url: String.t()
+            url: String.t(),
+            children: [non_neg_integer()]
           }
-    defstruct score: 0, title: "", comments: 0, creation_time: 0, url: ""
+    defstruct score: 0, title: "", comments: 0, creation_time: 0, url: "", children: []
+  end
+
+  defmodule Comment do
+    @type t() :: %Comment{
+            text: String.t(),
+            children: [non_neg_integer()],
+            creation_time: non_neg_integer()
+          }
+    defstruct text: "", children: [], creation_time: 0
   end
 
   @doc """
@@ -88,6 +98,21 @@ defmodule HNLive.Api do
     |> Enum.into(%{})
   end
 
+  def get_comments_for_story(%Story{children: children}) do
+    get_comments_recursively(children)
+  end
+
+  defp get_comments_recursively(ids) do
+    comments =
+      get_many_items(ids)
+      |> Enum.flat_map(&parse_comment/1)
+      |> Enum.into(%{})
+
+    Enum.reduce(comments, comments, fn {_, %Comment{children: children}}, acc ->
+      Map.merge(acc, get_comments_recursively(children))
+    end)
+  end
+
   defp parse_story(
          %{
            "type" => "story",
@@ -108,13 +133,38 @@ defmodule HNLive.Api do
           creation_time: time,
           # if no url is present, insert a url pointing to the corresponding
           # Hacker News comments thread
-          url: Map.get(item, "url", "https://news.ycombinator.com/item?id=#{id}")
+          url: Map.get(item, "url", "https://news.ycombinator.com/item?id=#{id}"),
+          children: Map.get(item, "kids", [])
         }
       }
     ]
   end
 
   defp parse_story(_) do
+    []
+  end
+
+  defp parse_comment(
+         %{
+           "type" => "comment",
+           "id" => id,
+           "text" => text,
+           "time" => time
+         } = item
+       ) do
+    [
+      {
+        id,
+        %Comment{
+          text: text,
+          children: Map.get(item, "kids", []),
+          creation_time: time
+        }
+      }
+    ]
+  end
+
+  defp parse_comment(_) do
     []
   end
 
