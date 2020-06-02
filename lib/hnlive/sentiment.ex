@@ -1,13 +1,28 @@
+defmodule HNLive.Sentiment.Score do
+  File.read!("#{__DIR__}/afinn-165.json")
+  |> Jason.decode!()
+  |> (fn map ->
+        def word_list(), do: unquote(Map.keys(map))
+        map
+      end).()
+  |> Enum.each(fn {word, score} ->
+    def score_word(unquote(word)), do: unquote(score)
+  end)
+
+  def score_word(_), do: nil
+end
+
 defmodule HNLive.Sentiment do
+  alias HNLive.Sentiment.Score
+
   def run(sample) do
-    valence_map = File.read!("afinn-165.json") |> Jason.decode!()
-    word_list = Map.keys(valence_map)
+    sample = String.downcase(sample)
 
     {positive, neutral, negative, score} =
-      :binary.matches(sample, word_list)
+      :binary.matches(sample, Score.word_list())
       |> Enum.filter(fn {start, length} -> is_word?(sample, start, length) end)
       |> Enum.map(fn {start, length} -> binary_part(sample, start, length) end)
-      |> Enum.map(fn word -> {word, Map.fetch!(valence_map, word)} end)
+      |> Enum.map(fn word -> {word, Score.score_word(word)} end)
       |> Enum.reduce({[], [], [], 0}, fn {word, score}, {positive, neutral, negative, sum} ->
         cond do
           score > 0 -> {[{word, score} | positive], neutral, negative, sum + score}
