@@ -15,7 +15,7 @@ end
 defmodule HNLive.Sentiment do
   alias HNLive.Sentiment.Score
 
-  def run(sample) do
+  def score_sample(sample) do
     sample = String.downcase(sample)
 
     {positive, neutral, negative, score} =
@@ -45,5 +45,26 @@ defmodule HNLive.Sentiment do
     rescue
       ArgumentError -> ""
     end
+  end
+end
+
+defmodule HNLive.TopSentiment do
+  alias HNLive.Api
+  alias HNLive.Sentiment
+
+  def run() do
+    Api.get_newest_stories()
+    |> Enum.into(%{}, fn {id, story} ->
+      comments = Api.get_comments_for_story(story)
+
+      score =
+        Enum.map(comments, fn {_, comment} ->
+          Sentiment.score_sample(comment.text).score
+        end)
+        |> Enum.sum()
+
+      IO.puts("Got #{map_size(comments)} comments for #{id} with score #{score}")
+      {id, score}
+    end)
   end
 end
