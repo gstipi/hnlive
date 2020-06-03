@@ -54,17 +54,20 @@ defmodule HNLive.TopSentiment do
 
   def run() do
     Api.get_newest_stories()
-    |> Enum.into(%{}, fn {id, story} ->
-      comments = Api.get_comments_for_story(story)
+    |> Enum.map(fn {id, story} ->
+      Task.async(fn ->
+        comments = Api.get_comments_for_story(story)
 
-      score =
-        Enum.map(comments, fn {_, comment} ->
-          Sentiment.score_sample(comment.text).score
-        end)
-        |> Enum.sum()
+        score =
+          Enum.map(comments, fn {_, comment} ->
+            Sentiment.score_sample(comment.text).score
+          end)
+          |> Enum.sum()
 
-      IO.puts("Got #{map_size(comments)} comments for #{id} with score #{score}")
-      {id, score}
+        IO.puts("Got #{map_size(comments)} comments for #{id} with score #{score}")
+        {id, score}
+      end)
     end)
+    |> Enum.into(%{}, &Task.await(&1, :infinity))
   end
 end
