@@ -112,38 +112,42 @@ defmodule HNLive.Watcher do
 
   # Server
 
+  defmodule State do
+    defstruct stories: %{}, last_updated_ids: [], top_newest: %{}, comments: %{}
+  end
+
   @impl true
   def init(_) do
     SubscriberCountTracker.start_link(pubsub_server: @pubsub_server, pubsub_topic: @pubsub_topic)
     send(self(), :initial_api_calls)
-    {:ok, %{stories: %{}, last_updated_ids: [], top_newest: %{}}}
+    {:ok, %State{}}
   end
 
   @impl true
   def handle_call(
         {:get_top_newest_stories, sort_by},
         _from,
-        %{top_newest: top_newest} = state
+        %State{top_newest: top_newest} = state
       ) do
     {:reply, Map.get(top_newest, sort_by, []), state}
   end
 
   @impl true
-  def handle_info(:initial_api_calls, state) do
+  def handle_info(:initial_api_calls, %State{} = state) do
     run_init()
     run_get_updated_ids()
     {:noreply, state}
   end
 
   @impl true
-  def handle_info({:init, stories}, state) do
+  def handle_info({:init, stories}, %State{} = state) do
     # When the watcher starts, the 500 newest stories are initially retrieved using
     # `HNLive.Api.get_newest_stories/0`. We handle the result here.
 
     if map_size(stories) == 0, do: run_init(@retry_init_after)
 
     {:noreply,
-     %{
+     %State{
        state
        | stories: stories,
          top_newest: update_top_newest(stories)
@@ -153,8 +157,16 @@ defmodule HNLive.Watcher do
   @impl true
   def handle_info(
         {:get_updated_ids, updated_ids},
-        %{stories: stories, last_updated_ids: last_updated_ids} = state
+        %State{stories: stories, last_updated_ids: last_updated_ids} = state
       ) do
+    # every comment should have one parent story
+    # every store may have zero or more associated comments
+    # when a new comment is detected, we calculate its sentiment score and
+    # check its parent, if parent is a comment (check whether ID in comment map),
+    # we retrieve parent's story ID and set new comment's story ID to the same story ID
+    # if parent is a story (check whether ID in story map), we set comment's story ID to
+    # this ID
+
     # Every 10 seconds updates are downloaded
     # using `HNLive.Api.get_updates/0`. We handle the result here.
     new_state =
@@ -171,7 +183,7 @@ defmodule HNLive.Watcher do
 
           run_api_task(:updates, fn -> Api.get_many_stories(filtered_ids) end)
 
-          %{state | last_updated_ids: updated_ids}
+          %State{state | last_updated_ids: updated_ids}
 
         # ignore errors
         _ ->
@@ -185,7 +197,7 @@ defmodule HNLive.Watcher do
   @impl true
   def handle_info(
         {:updates, updated_stories},
-        %{stories: stories, top_newest: top_newest} = state
+        %State{stories: stories, top_newest: top_newest} = state
       ) do
     # Updated stories were downloaded using `HNLive.Api.get_many_stories/1.`
     # The updated stories are now merged with the previously retrieved stories.
@@ -198,7 +210,7 @@ defmodule HNLive.Watcher do
       |> Enum.into(%{})
 
     {:noreply,
-     %{
+     %State{
        state
        | stories: stories,
          top_newest: update_top_newest(stories, top_newest)

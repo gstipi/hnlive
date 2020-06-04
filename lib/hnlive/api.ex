@@ -26,9 +26,10 @@ defmodule HNLive.Api do
     @type t() :: %Comment{
             text: String.t(),
             children: [non_neg_integer()],
-            creation_time: non_neg_integer()
+            creation_time: non_neg_integer(),
+            parent: non_neg_integer()
           }
-    defstruct text: "", children: [], creation_time: 0
+    defstruct text: "", children: [], creation_time: 0, parent: 0
   end
 
   @doc """
@@ -98,6 +99,18 @@ defmodule HNLive.Api do
     |> Enum.into(%{})
   end
 
+  def get_many_stories_or_comments(ids) do
+    get_many_items(ids)
+    |> Enum.flat_map(fn item ->
+      case Map.get(item, "type") do
+        nil -> []
+        "story" -> parse_story(item)
+        "comment" -> parse_comment(item)
+      end
+    end)
+    |> Enum.into(%{})
+  end
+
   def get_comments_for_story(%Story{children: children}) do
     get_comments_recursively(children)
   end
@@ -149,7 +162,8 @@ defmodule HNLive.Api do
            "type" => "comment",
            "id" => id,
            "text" => text,
-           "time" => time
+           "time" => time,
+           "parent" => parent
          } = item
        ) do
     [
@@ -158,7 +172,8 @@ defmodule HNLive.Api do
         %Comment{
           text: text,
           children: Map.get(item, "kids", []),
-          creation_time: time
+          creation_time: time,
+          parent: parent
         }
       }
     ]
